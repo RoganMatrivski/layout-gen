@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="unqualified"
+           attributeFormDefault="unqualified">
+
+  <!--
+    First-pass schema generated from the Rust model.
+    Notes:
+    - The Rust parser accepts missing attributes and fills them from defaults.
+    - size/min-size/max-size/padding/margin are currently modeled as opaque strings,
+      because their concrete serialization format is defined outside the shown files.
+    - Unknown child tags are accepted by the Rust parser as Leaf::Other, but are not
+      declared here so editors can offer strict autocomplete for the known tags.
+    - flex/block nest recursively (see layout.rs: LeafStruct<T>::children), so both
+      element types reuse the same LeafChildren group as <layout>.
+  -->
+
+  <xs:simpleType name="FlexDirectionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="row"/>
+      <xs:enumeration value="column"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FlexWrapType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="no-wrap"/>
+      <xs:enumeration value="wrap"/>
+      <xs:enumeration value="reverse-wrap"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlignType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="start"/>
+      <xs:enumeration value="end"/>
+      <xs:enumeration value="center"/>
+      <xs:enumeration value="stretch"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="JustifyType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="start"/>
+      <xs:enumeration value="end"/>
+      <xs:enumeration value="center"/>
+      <xs:enumeration value="space-between"/>
+      <xs:enumeration value="space-around"/>
+      <xs:enumeration value="space-evenly"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+    Shared child particle: any leaf may nest flex/block children, any number of times.
+    NOTE: occurrence constraints (minOccurs/maxOccurs) can't live on the choice inside
+    a group *definition* - they must go on each <xs:group ref="LeafChildren" .../> instead.
+  -->
+  <xs:group name="LeafChildren">
+    <xs:choice>
+      <xs:element name="flex" type="FlexElementType"/>
+      <xs:element name="block" type="BlockElementType"/>
+      <xs:element name="grid" type="GridElementType"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="FlexType">
+    <xs:attribute name="direction" type="FlexDirectionType" use="optional" default="row"/>
+    <xs:attribute name="reverse" type="xs:boolean" use="optional" default="false"/>
+    <xs:attribute name="wrap" type="FlexWrapType" use="optional" default="no-wrap"/>
+    <xs:attribute name="justify-content" type="JustifyType" use="optional" default="start"/>
+    <xs:attribute name="align-items" type="AlignType" use="optional" default="stretch"/>
+    <xs:attribute name="align-content" type="AlignType" use="optional" default="start"/>
+    <xs:attribute name="gap-row" type="xs:decimal" use="optional" default="0.0"/>
+    <xs:attribute name="gap-column" type="xs:decimal" use="optional" default="0.0"/>
+    <xs:attribute name="grow" type="xs:decimal" use="optional" default="0.0"/>
+    <xs:attribute name="shrink" type="xs:decimal" use="optional" default="1.0"/>
+    <xs:attribute name="basis" type="xs:string" use="optional" default="auto"/>
+    <xs:attribute name="align-self" type="AlignType" use="optional"/>
+
+    <xs:attribute name="size" type="xs:string" use="optional"/>
+    <xs:attribute name="min-size" type="xs:string" use="optional"/>
+    <xs:attribute name="max-size" type="xs:string" use="optional"/>
+    <xs:attribute name="padding" type="xs:string" use="optional"/>
+    <xs:attribute name="margin" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="BlockType">
+    <xs:attribute name="size" type="xs:string" use="optional"/>
+    <xs:attribute name="min-size" type="xs:string" use="optional"/>
+    <xs:attribute name="max-size" type="xs:string" use="optional"/>
+    <xs:attribute name="padding" type="xs:string" use="optional"/>
+    <xs:attribute name="margin" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="GridType">
+    <xs:attribute name="columns" type="xs:string" use="optional" default="none"/>
+    <xs:attribute name="rows" type="xs:string" use="optional" default="none"/>
+    <xs:attribute name="gap-row" type="xs:decimal" use="optional" default="0.0"/>
+    <xs:attribute name="gap-column" type="xs:decimal" use="optional" default="0.0"/>
+    <xs:attribute name="size" type="xs:string" use="optional"/>
+    <xs:attribute name="min-size" type="xs:string" use="optional"/>
+    <xs:attribute name="max-size" type="xs:string" use="optional"/>
+    <xs:attribute name="padding" type="xs:string" use="optional"/>
+    <xs:attribute name="margin" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="LayoutType">
+    <xs:group ref="LeafChildren" minOccurs="0" maxOccurs="unbounded"/>
+    <xs:attribute name="version" type="xs:string" use="optional" default="0.1.0"/>
+  </xs:complexType>
+
+  <!-- Wrapper element types: attributes from FlexType/BlockType, plus recursive children. -->
+  <xs:complexType name="FlexElementType">
+    <xs:complexContent>
+      <xs:extension base="FlexType">
+        <xs:group ref="LeafChildren" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="BlockElementType">
+    <xs:complexContent>
+      <xs:extension base="BlockType">
+        <xs:group ref="LeafChildren" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="GridElementType">
+    <xs:complexContent>
+      <xs:extension base="GridType">
+        <xs:group ref="LeafChildren" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="layout" type="LayoutType"/>
+  <xs:element name="flex" type="FlexElementType"/>
+  <xs:element name="block" type="BlockElementType"/>
+  <xs:element name="grid" type="GridElementType"/>
+
+</xs:schema>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout version="0.1.0">
+
+  <!-- Fixed header -->
+  <block size="56px">
+    <flex
+      direction="row"
+      justify-content="space-between"
+      align-items="center">
+      <block size="200px"/>
+      <block size="120px"/>
+    </flex>
+  </block>
+
+
+  <!-- Remaining viewport -->
+  <flex
+    direction="column"
+    grow="1"
+    shrink="1">
+
+    <flex
+      direction="row"
+      grow="1"
+      shrink="1">
+
+
+      <!-- Navigation -->
+      <block
+        size="220px"
+        shrink="0"/>
+
+
+      <!-- Main dashboard -->
+      <flex
+        direction="column"
+        grow="1"
+        shrink="1"
+        padding="16px"
+        gap-row="12">
+
+
+        <!-- Top metrics -->
+        <grid
+          columns="repeat(4,1fr)"
+          size="120px"
+          shrink="0"
+          gap-column="12">
+
+          <block/>
+          <block/>
+          <block/>
+          <block/>
+
+        </grid>
+
+
+        <!-- Middle visualization area -->
+        <flex
+          direction="row"
+          grow="1"
+          shrink="1"
+          gap-column="12">
+
+          <block
+            grow="2"
+            shrink="1"/>
+
+          <block
+            grow="1"
+            shrink="1"/>
+
+        </flex>
+
+
+        <!-- Compact activity area -->
+        <block
+          size="160px"
+          shrink="0"/>
+
+
+      </flex>
+
+    </flex>
+
+  </flex>
+
+
+  <!-- Fixed footer -->
+  <block size="40px">
+    <flex
+      direction="row"
+      justify-content="space-between">
+      <block/>
+      <block/>
+    </flex>
+  </block>
+
+</layout>

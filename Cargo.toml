@@ -1,0 +1,36 @@
+[package]
+edition = "2024"
+name = "layout-gen"
+version = "0.1.0"
+
+[dependencies]
+eyre = "0.6.12"
+roxmltree = "0.21.1"
+serde_json = "1.0.151"
+tracing = "0.1.44"
+
+[dependencies.leaf-derive]
+path = "./derive"
+package = "layout-gen-derive"
+
+[dependencies.serde]
+version = "1.0.228"
+features = ["derive"]
+
+[dependencies.strum]
+version = "0.28.0"
+features = [
+    "derive",
+    "strum_macros",
+]
+
+[dependencies.taffy]
+version = "0.11.0"
+features = ["parse", "serde"]
+
+[workspace]
+members = [
+    "derive",
+    "npm-wasm",
+    "testbin",
+]

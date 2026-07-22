@@ -1,0 +1,28 @@
+<layout version="0.1.0-omega">
+  <!-- grow:0, min-size 100x100 -> should render as fixed 100x100, unaffected by siblings' grow -->
+  <flex min-size="100px 100px" />
+
+  <!-- grow:2 vs sibling below's grow:1 -> should claim exactly 2x the leftover space -->
+  <flex grow="2.0" min-size="0px 50px" />
+
+  <!-- grow:1, contains a nested column to check recursion + align-items:center on cross axis -->
+  <flex
+      direction="column"
+      grow="1.0"
+      align-items="center"
+      justify-content="space-between"
+      gap-row="8.0"
+  >
+    <!-- fixed size child inside the column, should be centered horizontally (column's cross axis) -->
+    <flex min-size="30px 30px" />
+    <!-- another fixed child, to make space-between visibly separate the two -->
+    <flex min-size="30px 30px" />
+  </flex>
+
+  <!-- grow:0, shrink:0 explicitly -> should stay pinned at its min-size even if space is tight -->
+  <flex grow="0.0" shrink="0.0" min-size="50px 50px" />
+
+  <!-- sanity checks for your Other-tag handling, same as before -->
+  <!-- <t />
+  <unknown-tag /> -->
+</layout>

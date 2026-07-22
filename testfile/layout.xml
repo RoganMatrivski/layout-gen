@@ -1,0 +1,16 @@
+<layout
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="layout.xsd"
+>
+    <flex
+        grow="1"
+        align-items="center"
+        justify-content="space-evenly"
+    >
+    <block size="50px"/>
+    <block size="50px"/>
+        <!-- <component type="" text-size=""> -->
+        <block size="50px"/>
+        <block size="50px"/>
+    </flex>
+</layout>

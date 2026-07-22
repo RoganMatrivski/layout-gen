@@ -1,0 +1,29 @@
+[package]
+name = "layout-gen-testbin"
+version = "0.1.0"
+authors = ["Robin Mauritz <robin@mdev.co.id>"]
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[target.'cfg(target_env = "musl")'.dependencies]
+mimalloc = "^0.1.48"
+
+[dependencies]
+clap = { version = "^4.5", features = ["derive"] }
+color-eyre = { version = "0.6", features = ["capture-spantrace"] }
+eyre = { version="0.6" }
+tracing = "0.1.44"
+tracing-error = "0.2.1"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+
+layout-gen = {path = "../"}
+taffy = { version = "0.11.0", features = ["parse"] }
+eframe = "0.35.0"
+notify = { version = "8.2.0", features = ["flume"] }
+random_color = "1.1.0"
+flume = "0.12.0"
+notify-debouncer-full = "0.7.0"
+serde = "1.0.229"
+serde_json = "1.0.151"
+egui-toast = "0.21.0"
+rfd = "0.17.2"
