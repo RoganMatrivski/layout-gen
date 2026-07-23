@@ -292,7 +292,8 @@ impl eframe::App for PreviewerApp {
 
                         let [red, green, blue] = self.rc.seed(u64::from(r.node_id)).to_rgb_array();
                         let [ir, ig, ib] = [255 - red, 255 - green, 255 - blue];
-                        let debugstr = format!("{x1}:{y1}\n{x2}:{y2}");
+                        // let debugstr = format!("{x1}:{y1}\n{x2}:{y2}");
+                        let rectstr = format!("{}: {}x{}", r.label, r.width, r.height);
 
                         painter.rect_filled(ui_rect, 0, egui::Color32::from_rgb(red, green, blue));
 
@@ -311,7 +312,7 @@ impl eframe::App for PreviewerApp {
                         painter.text(
                             pos2(x1 + 5.0, y1 + 5.0),
                             egui::Align2::LEFT_TOP,
-                            &debugstr,
+                            &rectstr,
                             egui::FontId::proportional(16.0),
                             egui::Color32::BLUE,
                         );

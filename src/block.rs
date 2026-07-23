@@ -1,14 +1,17 @@
 use crate::commons::{
-    LeafProperties, parse_dimension, parse_length_percentage, parse_length_percentage_auto,
+    EdgeInsets, LeafProperties, parse_dimension, parse_length_percentage,
+    parse_length_percentage_auto,
 };
 use taffy::prelude::*;
-
 #[derive(serde::Serialize, Debug, Clone, leaf_derive::FromXmlAttrs)]
 pub struct BlockProperties {
     pub id: Option<String>,
-    pub size: SizeProp,
-    pub min_size: SizeProp,
-    pub max_size: SizeProp,
+    pub width: String,
+    pub height: String,
+    pub min_width: String,
+    pub min_height: String,
+    pub max_width: String,
+    pub max_height: String,
     pub padding: EdgeInsets,
     pub margin: EdgeInsets,
 
@@ -20,18 +23,12 @@ impl Default for BlockProperties {
     fn default() -> Self {
         Self {
             id: None,
-            size: SizeProp {
-                width: "auto".into(),
-                height: "auto".into(),
-            },
-            min_size: SizeProp {
-                width: "auto".into(),
-                height: "auto".into(),
-            },
-            max_size: SizeProp {
-                width: "auto".into(),
-                height: "auto".into(),
-            },
+            width: "auto".into(),
+            height: "auto".into(),
+            min_width: "auto".into(),
+            min_height: "auto".into(),
+            max_width: "auto".into(),
+            max_height: "auto".into(),
             padding: EdgeInsets {
                 top: "0px".into(),
                 right: "0px".into(),
@@ -44,13 +41,11 @@ impl Default for BlockProperties {
                 bottom: "0px".into(),
                 left: "0px".into(),
             },
-            flex_grow: 1.,
+            flex_grow: 0.,
             flex_shrink: 1.,
         }
     }
 }
-use crate::commons::{EdgeInsets, SizeProp};
-
 impl LeafProperties for BlockProperties {
     fn id(&self) -> Option<String> {
         self.id.clone()
@@ -61,16 +56,16 @@ impl LeafProperties for BlockProperties {
         Style {
             display: Display::Block,
             size: Size {
-                width: parse_dimension(&self.size.width),
-                height: parse_dimension(&self.size.height),
+                width: parse_dimension(&self.width),
+                height: parse_dimension(&self.height),
             },
             min_size: Size {
-                width: parse_dimension(&self.min_size.width),
-                height: parse_dimension(&self.min_size.height),
+                width: parse_dimension(&self.min_width),
+                height: parse_dimension(&self.min_height),
             },
             max_size: Size {
-                width: parse_dimension(&self.max_size.width),
-                height: parse_dimension(&self.max_size.height),
+                width: parse_dimension(&self.max_width),
+                height: parse_dimension(&self.max_height),
             },
             padding: Rect {
                 top: parse_length_percentage(&self.padding.top),

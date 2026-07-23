@@ -2,7 +2,7 @@ use strum::EnumString;
 use taffy::prelude::*;
 
 use crate::commons::{
-    EdgeInsets, LeafProperties, SizeProp, parse_dimension, parse_length_percentage,
+    EdgeInsets, LeafProperties, parse_dimension, parse_length_percentage,
     parse_length_percentage_auto,
 };
 
@@ -62,9 +62,12 @@ pub struct FlexProperties {
     pub basis: String,
     pub align_self: Option<Align>,
 
-    pub size: SizeProp,
-    pub min_size: SizeProp,
-    pub max_size: SizeProp,
+    pub width: String,
+    pub height: String,
+    pub min_width: String,
+    pub min_height: String,
+    pub max_width: String,
+    pub max_height: String,
     pub padding: EdgeInsets,
     pub margin: EdgeInsets,
 }
@@ -85,18 +88,12 @@ impl Default for FlexProperties {
             shrink: 1.0,
             basis: "auto".to_string(),
             align_self: None,
-            size: SizeProp {
-                width: "auto".into(),
-                height: "auto".into(),
-            },
-            min_size: SizeProp {
-                width: "auto".into(),
-                height: "auto".into(),
-            },
-            max_size: SizeProp {
-                width: "auto".into(),
-                height: "auto".into(),
-            },
+            width: "auto".into(),
+            height: "auto".into(),
+            min_width: "auto".into(),
+            min_height: "auto".into(),
+            max_width: "auto".into(),
+            max_height: "auto".into(),
             padding: EdgeInsets {
                 top: "0px".into(),
                 right: "0px".into(),
@@ -189,16 +186,16 @@ impl LeafProperties for FlexProperties {
             flex_shrink: self.shrink,
             flex_basis: parse_dimension(&self.basis),
             size: Size {
-                width: parse_dimension(&self.size.width),
-                height: parse_dimension(&self.size.height),
+                width: parse_dimension(&self.width),
+                height: parse_dimension(&self.height),
             },
             min_size: Size {
-                width: parse_dimension(&self.min_size.width),
-                height: parse_dimension(&self.min_size.height),
+                width: parse_dimension(&self.min_width),
+                height: parse_dimension(&self.min_height),
             },
             max_size: Size {
-                width: parse_dimension(&self.max_size.width),
-                height: parse_dimension(&self.max_size.height),
+                width: parse_dimension(&self.max_width),
+                height: parse_dimension(&self.max_height),
             },
             padding: Rect {
                 top: parse_length_percentage(&self.padding.top),

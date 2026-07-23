@@ -1,9 +1,9 @@
 <layout version="0.1.0-omega" id="flex">
   <!-- grow:0, min-size 100x100 -> should render as fixed 100x100, unaffected by siblings' grow -->
-  <flex min-size="100px 100px" id="flex-1" />
+  <flex min-width="100px" min-height="100px" id="flex-1" />
 
   <!-- grow:2 vs sibling below's grow:1 -> should claim exactly 2x the leftover space -->
-  <flex grow="2.0" min-size="0px 50px" id="flex-2" />
+  <flex grow="2.0" min-width="0px" min-height="50px" id="flex-2" />
 
   <!-- grow:1, contains a nested column to check recursion + align-items:center on cross axis -->
   <flex
@@ -15,13 +15,13 @@
       id="flex-3"
   >
     <!-- fixed size child inside the column, should be centered horizontally (column's cross axis) -->
-    <flex min-size="30px 30px" id="nested-flex-1" />
+    <flex min-width="30px" min-height="30px" id="nested-flex-1" />
     <!-- another fixed child, to make space-between visibly separate the two -->
-    <flex min-size="30px 30px" id="nested-flex-2" />
+    <flex min-width="30px" min-height="30px" id="nested-flex-2" />
   </flex>
 
   <!-- grow:0, shrink:0 explicitly -> should stay pinned at its min-size even if space is tight -->
-  <flex grow="0.0" shrink="0.0" min-size="50px 50px" id="flex-4" />
+  <flex grow="0.0" shrink="0.0" min-width="50px" min-height="50px" id="flex-4" />
 
   <!-- sanity checks for your Other-tag handling, same as before -->
   <!-- <t />

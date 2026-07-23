@@ -31,21 +31,7 @@ fn css_box_shorthand(s: &str) -> eyre::Result<[String; 4]> {
     Ok(vals.map(String::from))
 }
 
-// raw string length ("1px" / "50%" / "auto"), parsed at taffy-conversion time
-#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
-pub struct SizeProp {
-    pub width: String,
-    pub height: String,
-}
-
-impl FromStr for SizeProp {
-    type Err = eyre::Error;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let [width, height] = css_pair_shorthand(s)?;
-        Ok(Self { width, height })
-    }
-}
-
+// -- parsing helpers: "auto" / "12px" / "50%" -> taffy types --
 #[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EdgeInsets {
     pub top: String,

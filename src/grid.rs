@@ -1,6 +1,6 @@
 use crate::commons::{
-    EdgeInsets, LeafProperties, SizeProp, parse_dimension, parse_grid_template,
-    parse_length_percentage, parse_length_percentage_auto,
+    EdgeInsets, LeafProperties, parse_dimension, parse_grid_template, parse_length_percentage,
+    parse_length_percentage_auto,
 };
 // use serde::{Deserialize, Serialize};
 use taffy::prelude::*;
@@ -12,9 +12,12 @@ pub struct GridProperties {
     pub rows: String,
     pub gap_row: f32,
     pub gap_column: f32,
-    pub size: SizeProp,
-    pub min_size: SizeProp,
-    pub max_size: SizeProp,
+    pub width: String,
+    pub height: String,
+    pub min_width: String,
+    pub min_height: String,
+    pub max_width: String,
+    pub max_height: String,
     pub padding: EdgeInsets,
     pub margin: EdgeInsets,
 
@@ -31,18 +34,12 @@ impl Default for GridProperties {
             rows: "none".into(),
             gap_row: 0.0,
             gap_column: 0.0,
-            size: SizeProp {
-                width: "auto".into(),
-                height: "auto".into(),
-            },
-            min_size: SizeProp {
-                width: "auto".into(),
-                height: "auto".into(),
-            },
-            max_size: SizeProp {
-                width: "auto".into(),
-                height: "auto".into(),
-            },
+            width: "auto".into(),
+            height: "auto".into(),
+            min_width: "auto".into(),
+            min_height: "auto".into(),
+            max_width: "auto".into(),
+            max_height: "auto".into(),
             padding: EdgeInsets {
                 top: "0px".into(),
                 right: "0px".into(),
@@ -55,7 +52,7 @@ impl Default for GridProperties {
                 bottom: "0px".into(),
                 left: "0px".into(),
             },
-            flex_grow: 1.,
+            flex_grow: 0.,
             flex_shrink: 1.,
         }
     }
@@ -76,16 +73,16 @@ impl LeafProperties for GridProperties {
                 height: length(self.gap_row),
             },
             size: Size {
-                width: parse_dimension(&self.size.width),
-                height: parse_dimension(&self.size.height),
+                width: parse_dimension(&self.width),
+                height: parse_dimension(&self.height),
             },
             min_size: Size {
-                width: parse_dimension(&self.min_size.width),
-                height: parse_dimension(&self.min_size.height),
+                width: parse_dimension(&self.min_width),
+                height: parse_dimension(&self.min_height),
             },
             max_size: Size {
-                width: parse_dimension(&self.max_size.width),
-                height: parse_dimension(&self.max_size.height),
+                width: parse_dimension(&self.max_width),
+                height: parse_dimension(&self.max_height),
             },
             padding: Rect {
                 top: parse_length_percentage(&self.padding.top),
