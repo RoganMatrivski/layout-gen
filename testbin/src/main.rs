@@ -174,13 +174,11 @@ impl PreviewerApp {
         )
         .unwrap();
 
-        let mut rects = if self.drawable_only {
+        let rects = if self.drawable_only {
             collect_drawable_rects(&tree, root)
         } else {
             collect_debug_rects(&tree, root)
         }?;
-
-        rects.sort_by_key(|r| r.depth);
 
         Ok(rects)
     }
@@ -205,7 +203,9 @@ impl eframe::App for PreviewerApp {
 
         let ctx = ui.ctx().clone();
 
-        // --- NEW: side panel to set painter/canvas size ---
+        // Compute once, shared by the tree view, the debug panel, and the canvas.
+        let mut rects = self.get_render_rects().expect("Failed to get render rects");
+
         egui::Panel::right("canvas_controls")
             .resizable(false)
             .default_size(180.0)
@@ -235,12 +235,9 @@ impl eframe::App for PreviewerApp {
                 }
 
                 if ui.button("Copy Debug Layout").clicked() {
-                    let rects = self.get_render_rects().expect("Failed to get render rects");
-
-                    // Get debug string version of rendered rects
                     let dstr = rects
-                        .into_iter()
-                        .map(|x| (x.label, x.x, x.y, x.width, x.height, x.draw))
+                        .iter()
+                        .map(|x| (x.label.clone(), x.x, x.y, x.width, x.height, x.draw.clone()))
                         .map(|(l, x, y, w, h, d)| {
                             format!("{l}\n\tpos:{x}:{y}\n\tsize:{w}x{h}\n\tdrawprops:{d:#?}")
                         })
@@ -252,12 +249,82 @@ impl eframe::App for PreviewerApp {
 
                 ui.add_space(4.0);
                 ui.small("Drag the numbers, or click and type.");
+
+                // --- NEW: tree view of the render tree, synced with selection ---
+                ui.add_space(12.0);
+                ui.separator();
+                ui.add_space(8.0);
+                ui.heading("Tree");
+                ui.add_space(4.0);
+
+                egui::ScrollArea::vertical()
+                    .id_salt("tree_view_scroll")
+                    .auto_shrink([false, false])
+                    .show(ui, |ui| {
+                        for r in &rects {
+                            let indent = (r.depth as f32) * 14.0;
+                            ui.horizontal(|ui| {
+                                ui.add_space(indent);
+                                let is_selected = self.selected == Some(r.node_id);
+                                let label = format!("{} ({}x{})", r.label, r.width, r.height);
+                                if ui.selectable_label(is_selected, label).clicked() {
+                                    self.selected = Some(r.node_id);
+                                }
+                            });
+                        }
+                    });
             });
 
-        egui::CentralPanel::default().show(ui, |ui| {
-            let rects = self.get_render_rects().expect("Failed to get render rects");
+        rects.sort_by_key(|r| r.depth);
 
-            // NEW: whole dashboard scrolls if canvas_size > visible panel size
+        // --- debug panel: docked side panel, synced with self.selected ---
+        if self.selected.is_some() {
+            egui::Panel::right("node_debug")
+                .resizable(true)
+                .default_size(260.0)
+                .show(ui, |ui| {
+                    ui.heading("Node Debug");
+                    ui.add_space(4.0);
+
+                    if let Some(id) = self.selected {
+                        if let Some(r) = rects.iter().find(|r| r.node_id == id) {
+                            egui::ScrollArea::vertical()
+                                .max_height(400.0)
+                                .auto_shrink([false, false])
+                                .show(ui, |ui| {
+                                    ui.label(format!("NodeId: {:?}", r.node_id));
+                                    ui.label(format!("pos: {:.0},{:.0}", r.x, r.y));
+                                    ui.label(format!("size: {:.0}x{:.0}", r.width, r.height));
+                                    ui.label(format!("depth: {}", r.depth));
+                                    if let Some(draw) = &r.draw {
+                                        ui.label(format!("{draw:#?}"));
+                                    }
+                                    ui.label(format!("style prop\n{}", r.style_str));
+                                });
+
+                            ui.add_space(8.0);
+                            ui.separator();
+                            ui.add_space(4.0);
+
+                            ui.horizontal(|ui| {
+                                if ui.button("Close").clicked() {
+                                    self.selected = None;
+                                }
+
+                                if ui.button("Copy Info").clicked() {
+                                    let info = format!(
+                                        "NodeId: {:?}\npos: {:.0},{:.0}\nsize: {:.0}x{:.0}\ndepth: {}\nstyle: {}",
+                                        r.node_id, r.x, r.y, r.width, r.height, r.depth, r.style_str
+                                    );
+                                    ctx.copy_text(info);
+                                }
+                            });
+                        }
+                    }
+                });
+        }
+
+        egui::CentralPanel::default().show(ui, |ui| {
             egui::ScrollArea::both()
                 .auto_shrink([false, false])
                 .show(ui, |ui| {
@@ -265,7 +332,6 @@ impl eframe::App for PreviewerApp {
                         ui.allocate_painter(self.canvas_size, egui::Sense::click());
                     let origin = response.rect.min;
 
-                    // --- hit-testing: pointer -> canvas-local coords ---
                     if response.clicked() {
                         if let Some(pos) = response.interact_pointer_pos() {
                             let local = pos2(pos.x - origin.x, pos.y - origin.y);
@@ -273,7 +339,6 @@ impl eframe::App for PreviewerApp {
                         }
                     }
 
-                    // --- draw every rect, offset by canvas origin ---
                     for r in &rects {
                         let x1 = origin.x + r.x;
                         let y1 = origin.y + r.y;
@@ -283,7 +348,6 @@ impl eframe::App for PreviewerApp {
 
                         let [red, green, blue] = self.rc.seed(u64::from(r.node_id)).to_rgb_array();
                         let [ir, ig, ib] = [255 - red, 255 - green, 255 - blue];
-                        // let debugstr = format!("{x1}:{y1}\n{x2}:{y2}");
                         let rectstr = format!("{}\n{}x{}", r.label, r.width, r.height);
 
                         painter.rect_filled(ui_rect, 0, egui::Color32::from_rgb(red, green, blue));
@@ -309,44 +373,6 @@ impl eframe::App for PreviewerApp {
                         );
                     }
                 });
-
-            // --- debug panel: unaffected by scrolling, still a floating Window ---
-            if let Some(id) = self.selected {
-                if let Some(r) = rects.iter().find(|r| r.node_id == id) {
-                    egui::Window::new("Node Debug")
-                        .default_height(200.0)
-                        .show(&ctx, |ui| {
-                            egui::ScrollArea::vertical()
-                                .max_height(200.0)
-                                .auto_shrink([false, false])
-                                .show(ui, |ui| {
-                                    ui.label(format!("NodeId: {:?}", r.node_id));
-                                    ui.label(format!("pos: {:.0},{:.0}", r.x, r.y));
-                                    ui.label(format!("size: {:.0}x{:.0}", r.width, r.height));
-                                    ui.label(format!("depth: {}", r.depth));
-                                    if let Some(draw) = &r.draw {
-                                        ui.label(format!("{draw:#?}"));
-                                    }
-                                    ui.label(format!(
-                                        "style prop\n{}",
-                                        r.style_str
-                                    ));
-                                });
-
-                            if ui.button("Close").clicked() {
-                                self.selected = None;
-                            }
-
-                            if ui.button("Copy Info").clicked() {
-                                let info = format!(
-                                    "NodeId: {:?}\npos: {:.0},{:.0}\nsize: {:.0}x{:.0}\ndepth: {}\nstyle: {}",
-                                    r.node_id, r.x, r.y, r.width, r.height, r.depth, r.style_str
-                                );
-                                ctx.copy_text(info);
-                            }
-                        });
-                }
-            }
         });
     }
 }
