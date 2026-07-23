@@ -138,6 +138,8 @@ impl Layout {
             .collect::<Result<Vec<_>, eyre::Error>>()?;
 
         let root_style = taffy::Style {
+            display: taffy::Display::Flex,
+            flex_direction: taffy::FlexDirection::Column,
             size: taffy::Size {
                 width: taffy::Dimension::percent(1.0),
                 height: taffy::Dimension::percent(1.0),

@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<layout version="0.1.0">
+<layout
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="layout.xsd"
+    version="0.1.0" >
 
   <!-- Fixed header -->
   <block size="56px">
