@@ -90,6 +90,8 @@
     <xs:attribute name="max-size" type="xs:string" use="optional"/>
     <xs:attribute name="padding" type="xs:string" use="optional"/>
     <xs:attribute name="margin" type="xs:string" use="optional"/>
+    <xs:attribute name="flex-grow" type="xs:decimal" use="optional" default="1.0"/>
+    <xs:attribute name="flex-shrink" type="xs:decimal" use="optional" default="1.0"/>
   </xs:complexType>
 
   <xs:complexType name="GridType">
@@ -102,6 +104,8 @@
     <xs:attribute name="max-size" type="xs:string" use="optional"/>
     <xs:attribute name="padding" type="xs:string" use="optional"/>
     <xs:attribute name="margin" type="xs:string" use="optional"/>
+    <xs:attribute name="flex-grow" type="xs:decimal" use="optional" default="1.0"/>
+    <xs:attribute name="flex-shrink" type="xs:decimal" use="optional" default="1.0"/>
   </xs:complexType>
 
   <xs:complexType name="LayoutType">

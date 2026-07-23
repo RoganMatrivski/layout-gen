@@ -2064,6 +2064,7 @@ dependencies = [
 name = "layout-gen-testbin"
 version = "0.1.0"
 dependencies = [
+ "arboard",
  "clap",
  "color-eyre",
  "eframe",

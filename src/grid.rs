@@ -16,6 +16,9 @@ pub struct GridProperties {
     pub max_size: SizeProp,
     pub padding: EdgeInsets,
     pub margin: EdgeInsets,
+
+    pub flex_grow: f32,
+    pub flex_shrink: f32,
 }
 
 impl Default for GridProperties {
@@ -49,6 +52,8 @@ impl Default for GridProperties {
                 bottom: "0px".into(),
                 left: "0px".into(),
             },
+            flex_grow: 1.,
+            flex_shrink: 1.,
         }
     }
 }
@@ -87,6 +92,8 @@ impl GridProperties {
                 bottom: parse_length_percentage_auto(&self.margin.bottom),
                 left: parse_length_percentage_auto(&self.margin.left),
             },
+            flex_grow: self.flex_grow,
+            flex_shrink: self.flex_shrink,
             ..Default::default()
         }
     }
