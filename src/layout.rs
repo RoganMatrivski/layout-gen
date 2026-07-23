@@ -100,10 +100,13 @@ where
         for child in node.children().filter(|x| x.is_element()) {
             if child.tag_name().name() == "draw" {
                 let d_defaults = DrawProperties::default();
-                draw = Some(
-                    DrawProperties::from_node(child, &d_defaults)
-                        .map_err(|e| eyre::eyre!("{e}"))?,
-                );
+                if draw.is_some() {
+                    eyre::bail!(
+                        "Node '{}' has more than one <draw> child; only one is allowed",
+                        node.attribute("id").unwrap_or("<unnamed>")
+                    );
+                }
+                draw = Some(DrawProperties::from_node(child, &d_defaults)?);
             } else {
                 children.push(parse_node(child)?);
             }
