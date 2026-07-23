@@ -153,7 +153,7 @@ impl PreviewerApp {
 }
 
 impl eframe::App for PreviewerApp {
-    fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         while let Ok(layout) = self.layout_rx.try_recv() {
             self.toasts.add(egui_toast::Toast {
                 kind: egui_toast::ToastKind::Info,
@@ -224,8 +224,10 @@ impl eframe::App for PreviewerApp {
                     // Get debug string version of rendered rects
                     let dstr = rects
                         .into_iter()
-                        .map(|x| (x.label, x.x, x.y, x.width, x.height))
-                        .map(|(l, x, y, w, h)| format!("{l}: {x}:{y} {w}x{h}"))
+                        .map(|x| (x.label, x.x, x.y, x.width, x.height, x.draw))
+                        .map(|(l, x, y, w, h, d)| {
+                            format!("{l}\n\tpos:{x}:{y}\n\tsize:{w}x{h}\n\tdrawprops:{d:#?}")
+                        })
                         .collect::<Vec<_>>()
                         .join("\n");
 
@@ -268,13 +270,6 @@ impl eframe::App for PreviewerApp {
                     let origin = response.rect.min;
 
                     // --- hit-testing: pointer -> canvas-local coords ---
-                    let hover_pos = ctx
-                        .pointer_hover_pos()
-                        .filter(|&pos| !blocked_by_floating_ui(&ctx, pos))
-                        .map(|pos| pos2(pos.x - origin.x, pos.y - origin.y));
-
-                    let hovered_id = hover_pos.and_then(|pos| topmost_rect_at(&rects, pos));
-
                     if response.clicked() {
                         if let Some(pos) = response.interact_pointer_pos() {
                             let local = pos2(pos.x - origin.x, pos.y - origin.y);
@@ -293,7 +288,7 @@ impl eframe::App for PreviewerApp {
                         let [red, green, blue] = self.rc.seed(u64::from(r.node_id)).to_rgb_array();
                         let [ir, ig, ib] = [255 - red, 255 - green, 255 - blue];
                         // let debugstr = format!("{x1}:{y1}\n{x2}:{y2}");
-                        let rectstr = format!("{}: {}x{}", r.label, r.width, r.height);
+                        let rectstr = format!("{}\n{}x{}", r.label, r.width, r.height);
 
                         painter.rect_filled(ui_rect, 0, egui::Color32::from_rgb(red, green, blue));
 
@@ -370,8 +365,3 @@ fn topmost_rect_at(rects: &[layout_gen::RenderRect], pos: egui::Pos2) -> Option<
         .map(|r| r.node_id)
 }
 
-fn blocked_by_floating_ui(ctx: &egui::Context, pos: egui::Pos2) -> bool {
-    ctx.layer_id_at(pos)
-        .map(|layer| layer.order != egui::Order::Background)
-        .unwrap_or(false)
-}
