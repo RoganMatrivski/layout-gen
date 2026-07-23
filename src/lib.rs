@@ -21,7 +21,7 @@ pub struct RenderRect {
     pub draw: Option<DrawProperties>,
 }
 
-pub fn collect_rects(
+pub fn collect_debug_rects(
     tree: &taffy::TaffyTree<layout::LeafContext>,
     root: taffy::NodeId,
 ) -> eyre::Result<Vec<RenderRect>> {
