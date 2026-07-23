@@ -50,16 +50,22 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:complexType name="DrawType">
+    <xs:attribute name="id" type="xs:string" use="optional"/>
+    <xs:attribute name="component" type="xs:string" use="optional"/>
+    <xs:attribute name="variant" type="xs:string" use="optional"/>
+    <xs:attribute name="size" type="xs:string" use="optional"/>
+  </xs:complexType>
+
   <!--
-    Shared child particle: any leaf may nest flex/block children, any number of times.
-    NOTE: occurrence constraints (minOccurs/maxOccurs) can't live on the choice inside
-    a group *definition* - they must go on each <xs:group ref="LeafChildren" .../> instead.
+    Shared child particle: any leaf may nest flex/block/grid children, and optionally a draw tag.
   -->
   <xs:group name="LeafChildren">
     <xs:choice>
       <xs:element name="flex" type="FlexElementType"/>
       <xs:element name="block" type="BlockElementType"/>
       <xs:element name="grid" type="GridElementType"/>
+      <xs:element name="draw" type="DrawType" minOccurs="0" maxOccurs="1"/>
     </xs:choice>
   </xs:group>
 

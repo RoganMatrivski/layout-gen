@@ -317,23 +317,6 @@ impl eframe::App for PreviewerApp {
                             egui::Color32::BLUE,
                         );
                     }
-
-                    // --- tooltip ---
-                    if let Some(id) = hovered_id {
-                        if let Some(r) = rects.iter().find(|r| r.node_id == id) {
-                            if let Some(local) = hover_pos {
-                                let screen_pos = pos2(origin.x + local.x, origin.y + local.y);
-                                egui::Area::new(egui::Id::new("preview_tooltip"))
-                                    .fixed_pos(screen_pos + egui::vec2(12.0, 12.0))
-                                    .order(egui::Order::Tooltip)
-                                    .show(&ctx, |ui| {
-                                        egui::Frame::popup(ui.style()).show(ui, |ui| {
-                                            ui.label(format!("{}", r.label));
-                                        });
-                                    });
-                            }
-                        }
-                    }
                 });
 
             // --- debug panel: unaffected by scrolling, still a floating Window ---
@@ -350,8 +333,11 @@ impl eframe::App for PreviewerApp {
                                     ui.label(format!("pos: {:.0},{:.0}", r.x, r.y));
                                     ui.label(format!("size: {:.0}x{:.0}", r.width, r.height));
                                     ui.label(format!("depth: {}", r.depth));
+                                    if let Some(draw) = &r.draw {
+                                        ui.label(format!("{draw:#?}"));
+                                    }
                                     ui.label(format!(
-                                        "style string (ignore constant value it's garbage mem ptr): \n{}",
+                                        "style prop\n{}",
                                         r.style_str
                                     ));
                                 });

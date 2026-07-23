@@ -1,0 +1,74 @@
+<layout
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="layout.xsd"
+    version="0.1.0"
+    id="card-grid-test" >
+
+  <flex direction="column" grow="1" id="page">
+
+    <!-- Fixed toolbar -->
+    <flex height="48px" id="toolbar">
+      <flex direction="row" justify-content="space-between" align-items="center" grow="1" id="toolbar-flex">
+        <block width="150px" height="24px" id="toolbar-title"/>
+        <flex direction="row" gap-column="8" id="toolbar-actions">
+          <block width="70px" height="28px" id="btn-filter"/>
+          <block width="70px" height="28px" id="btn-sort"/>
+          <block width="90px" height="28px" id="btn-new"/>
+        </flex>
+      </flex>
+    </flex>
+
+    <!-- Scrollable card grid area -->
+    <flex direction="column" grow="1" shrink="1" padding="24px" id="grid-area">
+
+      <grid
+        columns="repeat(3,1fr)"
+        rows="repeat(2,180px)"
+        gap-row="20"
+        gap-column="20"
+        flex-grow="1"
+        id="card-grid">
+
+        <flex direction="column" justify-content="space-between" padding="12px" id="card-1">
+          <block height="20px" id="card-1-title"/>
+          <block height="60px" id="card-1-body"/>
+          <block width="80px" height="24px" id="card-1-footer"/>
+        </flex>
+
+        <flex direction="column" justify-content="space-between" padding="12px" id="card-2">
+          <block height="20px" id="card-2-title"/>
+          <block height="60px" id="card-2-body"/>
+          <block width="80px" height="24px" id="card-2-footer"/>
+        </flex>
+
+        <flex direction="column" justify-content="space-between" padding="12px" id="card-3">
+          <block height="20px" id="card-3-title"/>
+          <block height="60px" id="card-3-body"/>
+          <block width="80px" height="24px" id="card-3-footer"/>
+        </flex>
+
+        <flex direction="column" justify-content="space-between" padding="12px" id="card-4">
+          <block height="20px" id="card-4-title"/>
+          <block height="60px" id="card-4-body"/>
+          <block width="80px" height="24px" id="card-4-footer"/>
+        </flex>
+
+        <flex direction="column" justify-content="space-between" padding="12px" id="card-5">
+          <block height="20px" id="card-5-title"/>
+          <block height="60px" id="card-5-body"/>
+          <block width="80px" height="24px" id="card-5-footer"/>
+        </flex>
+
+        <flex direction="column" justify-content="space-between" padding="12px" id="card-6">
+          <block height="20px" id="card-6-title"/>
+          <block height="60px" id="card-6-body"/>
+          <block width="80px" height="24px" id="card-6-footer"/>
+        </flex>
+
+      </grid>
+
+    </flex>
+
+  </flex>
+
+</layout>

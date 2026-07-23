@@ -8,6 +8,7 @@ use taffy::TaffyTree;
 use crate::{
     block::BlockProperties,
     commons::{FromXmlAttrs, LeafProperties},
+    draw::DrawProperties,
     flex::FlexProperties,
     grid::GridProperties,
 };
@@ -17,6 +18,7 @@ pub enum Leaf {
     Flex(LeafStruct<FlexProperties>),
     Block(LeafStruct<BlockProperties>),
     Grid(LeafStruct<GridProperties>),
+    // Draw(LeafStruct<DrawProperties>),
     Other(String),
 }
 
@@ -25,6 +27,7 @@ pub struct LeafContext {
     pub id: Option<String>,
     // TODO: Find something better than this
     pub debug_str: String,
+    pub draw: Option<DrawProperties>,
 }
 
 impl Leaf {
@@ -49,6 +52,7 @@ impl Leaf {
             Some(LeafContext {
                 id: leaf.props.id(),
                 debug_str: format!("{:#?}", leaf.props),
+                draw: leaf.draw, // new
             }),
         )
         .wrap_err("Failed to set node context")?;
@@ -77,6 +81,7 @@ impl Leaf {
 pub struct LeafStruct<T> {
     props: T,
     children: Vec<Leaf>,
+    draw: Option<DrawProperties>, // new — not a taffy child
 }
 
 impl<'doc, 'input, P> TryFrom<Node<'doc, 'input>> for LeafStruct<P>
@@ -89,13 +94,26 @@ where
         let defaults = P::default();
         let props = P::from_node(node, &defaults).map_err(|e| eyre::eyre!("{e}"))?;
 
-        let children = node
-            .children()
-            .filter(|x| x.is_element())
-            .map(parse_node)
-            .collect::<Result<Vec<Leaf>, Self::Error>>()?;
+        let mut children = Vec::new();
+        let mut draw = None;
 
-        Ok(Self { children, props })
+        for child in node.children().filter(|x| x.is_element()) {
+            if child.tag_name().name() == "draw" {
+                let d_defaults = DrawProperties::default();
+                draw = Some(
+                    DrawProperties::from_node(child, &d_defaults)
+                        .map_err(|e| eyre::eyre!("{e}"))?,
+                );
+            } else {
+                children.push(parse_node(child)?);
+            }
+        }
+
+        Ok(Self {
+            children,
+            props,
+            draw,
+        })
     }
 }
 

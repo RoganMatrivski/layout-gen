@@ -1,0 +1,58 @@
+<layout
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="layout.xsd"
+    version="0.1.0"
+    id="draw-test" >
+
+  <flex direction="column" grow="1" id="page">
+
+    <!-- Header with a logo drawable and a text drawable -->
+    <flex height="56px" id="header">
+      <flex direction="row" justify-content="space-between" align-items="center" grow="1" id="header-flex">
+
+        <block width="150px" height="32px" id="header-logo">
+          <draw component="image" variant="brand-mark" size="contain"/>
+        </block>
+
+        <block width="200px" height="24px" id="header-title">
+          <draw component="text" variant="heading" size="16px"/>
+        </block>
+
+      </flex>
+    </flex>
+
+    <!-- Body with a couple of shape drawables and one plain layout-only block -->
+    <flex direction="row" grow="1" padding="20px" gap-column="16" id="body">
+
+      <flex direction="column" width="240px" shrink="0" id="sidebar">
+
+        <block height="48px" id="nav-item-1">
+          <draw component="button" variant="ghost" size="full"/>
+        </block>
+
+        <block height="48px" id="nav-item-2">
+          <draw component="button" variant="ghost" size="full"/>
+        </block>
+
+        <!-- deliberately no <draw> here - pure spacer, should have draw: None -->
+        <block flex-grow="1" id="sidebar-spacer"/>
+
+      </flex>
+
+      <flex direction="column" grow="1" gap-row="16" id="main">
+
+        <block height="200px" id="chart-panel">
+          <draw component="chart" variant="line" size="responsive"/>
+        </block>
+
+        <block flex-grow="1" id="table-panel">
+          <draw component="table" variant="striped" size="responsive"/>
+        </block>
+
+      </flex>
+
+    </flex>
+
+  </flex>
+
+</layout>
