@@ -1,16 +1,18 @@
 <layout
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="layout.xsd"
-    version="0.1.0" >
+    version="0.1.0"
+    id="dashboard" >
 
   <!-- Fixed header -->
-  <block size="56px">
+  <block size="56px" id="header">
     <flex
       direction="row"
       justify-content="space-between"
-      align-items="center">
-      <block size="200px"/>
-      <block size="120px"/>
+      align-items="center"
+      id="header-flex">
+      <block size="200px" id="header-logo"/>
+      <block size="120px" id="header-user"/>
     </flex>
   </block>
 
@@ -19,18 +21,21 @@
   <flex
     direction="column"
     grow="1"
-    shrink="1">
+    shrink="1"
+    id="viewport">
 
     <flex
       direction="row"
       grow="1"
-      shrink="1">
+      shrink="1"
+      id="content-wrapper">
 
 
       <!-- Navigation -->
       <block
         size="220px"
-        flex-shrink="0"/>
+        flex-shrink="0"
+        id="navigation"/>
 
 
       <!-- Main dashboard -->
@@ -39,7 +44,8 @@
         grow="1"
         shrink="1"
         padding="16px"
-        gap-row="12">
+        gap-row="12"
+        id="main-dashboard">
 
 
         <!-- Top metrics -->
@@ -47,12 +53,13 @@
           columns="repeat(4,1fr)"
             size="120px"
           flex-shrink="0"
-          gap-column="12">
+          gap-column="12"
+          id="top-metrics">
 
-          <block/>
-          <block/>
-          <block/>
-          <block/>
+          <block id="metric-1"/>
+          <block id="metric-2"/>
+          <block id="metric-3"/>
+          <block id="metric-4"/>
 
         </grid>
 
@@ -62,15 +69,18 @@
           direction="row"
           grow="1"
           shrink="1"
-          gap-column="12">
+          gap-column="12"
+          id="middle-viz">
 
           <block
             flex-grow="2"
-            flex-shrink="1"/>
+            flex-shrink="1"
+            id="viz-chart-1"/>
 
           <block
             flex-grow="1"
-            flex-shrink="1"/>
+            flex-shrink="1"
+            id="viz-chart-2"/>
 
         </flex>
 
@@ -78,7 +88,8 @@
         <!-- Compact activity area -->
         <block
           size="160px"
-          flex-shrink="0"/>
+          flex-shrink="0"
+          id="activity-area"/>
 
 
       </flex>
@@ -89,12 +100,13 @@
 
 
   <!-- Fixed footer -->
-  <block size="40px">
+  <block size="40px" id="footer">
     <flex
       direction="row"
-      justify-content="space-between">
-      <block/>
-      <block/>
+      justify-content="space-between"
+      id="footer-flex">
+      <block id="footer-left"/>
+      <block id="footer-right"/>
     </flex>
   </block>
 

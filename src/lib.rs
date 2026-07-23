@@ -17,7 +17,7 @@ pub struct RenderRect {
 }
 
 pub fn collect_rects(
-    tree: &taffy::TaffyTree,
+    tree: &taffy::TaffyTree<layout::LeafContext>,
     root: taffy::NodeId,
 ) -> eyre::Result<Vec<RenderRect>> {
     let mut out = Vec::new();
@@ -51,7 +51,7 @@ fn changed_fields<T: serde::Serialize>(
 }
 
 fn collect_rects_inner(
-    tree: &taffy::TaffyTree,
+    tree: &taffy::TaffyTree<layout::LeafContext>,
     node: taffy::NodeId,
     parent_x: f32,
     parent_y: f32,
@@ -62,10 +62,15 @@ fn collect_rects_inner(
     let x = parent_x + layout.location.x;
     let y = parent_y + layout.location.y;
 
-    let styledefault = serde_json::to_value(&taffy::Style::<String>::default())?;
-    let style = serde_json::to_value(&tree.style(node)?)?;
+    // let styledefault = serde_json::to_value(&taffy::Style::<String>::default())?;
+    // let style = serde_json::to_value(&tree.style(node)?)?;
 
-    let changed = serde_json::to_string_pretty(&changed_fields(&styledefault, &style))?;
+    let defctx = layout::LeafContext {
+        ..Default::default()
+    };
+    let ctx = tree.get_node_context(node).unwrap_or(&defctx);
+
+    // let changed = serde_json::to_string_pretty(&changed_fields(&styledefault, &style))?;
 
     out.push(RenderRect {
         node_id: node,
@@ -74,8 +79,8 @@ fn collect_rects_inner(
         width: layout.size.width,
         height: layout.size.height,
         depth,
-        style_str: changed,
-        label: format!("{node:?}"), // swap in your own tag/type name if you thread it through
+        style_str: ctx.debug_str.clone(),
+        label: format!("{}", ctx.id.clone().unwrap_or(u64::from(node).to_string())),
     });
 
     for child in tree.children(node)? {

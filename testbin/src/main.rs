@@ -111,6 +111,7 @@ fn main() -> Result<(), Report> {
                 // UI state
                 selected: None,
                 toasts: egui_toast::Toasts::new(),
+                canvas_size: egui::vec2(1280.0, 800.0), // sane default, tweak to taste
             }))
         }),
     )?;
@@ -138,6 +139,7 @@ struct PreviewerApp {
     selected: Option<taffy::NodeId>,
 
     toasts: egui_toast::Toasts,
+    canvas_size: egui::Vec2,
 }
 
 impl PreviewerApp {
@@ -167,12 +169,74 @@ impl eframe::App for PreviewerApp {
 
         self.toasts.show(ui);
 
-        egui::CentralPanel::default().show(ui, |ui| {
-            let ctx = ui.ctx();
-            let screen_size = ctx.content_rect().size();
-            let (w, h) = (screen_size.x, screen_size.y);
-            let painter = ui.painter();
+        let ctx = ui.ctx().clone();
 
+        // --- NEW: side panel to set painter/canvas size ---
+        egui::Panel::right("canvas_controls")
+            .resizable(false)
+            .default_size(180.0)
+            .show(ui, |ui| {
+                ui.heading("Canvas");
+                ui.add_space(8.0);
+
+                ui.label("Width");
+                ui.add(
+                    egui::DragValue::new(&mut self.canvas_size.x)
+                        .range(50.0..=8000.0)
+                        .speed(2.0),
+                );
+
+                ui.label("Height");
+                ui.add(
+                    egui::DragValue::new(&mut self.canvas_size.y)
+                        .range(50.0..=8000.0)
+                        .speed(2.0),
+                );
+
+                ui.add_space(8.0);
+                if ui.button("Fit to window").clicked() {
+                    self.canvas_size = ctx.content_rect().size();
+                }
+
+                if ui.button("Copy Debug Layout").clicked() {
+                    let Some(layout) = self.layout.clone() else {
+                        tracing::warn!("Empty layout!");
+                        return;
+                    };
+
+                    let mut tree = taffy::TaffyTree::new();
+                    let root = layout.build_taffy_tree(&mut tree).unwrap();
+
+                    // NEW: layout is computed against the user-chosen canvas size,
+                    // not the window/viewport size.
+                    tree.compute_layout(
+                        root,
+                        taffy::Size {
+                            width: taffy::AvailableSpace::Definite(self.canvas_size.x),
+                            height: taffy::AvailableSpace::Definite(self.canvas_size.y),
+                        },
+                    )
+                    .unwrap();
+
+                    let mut rects = collect_rects(&tree, root).unwrap();
+                    rects.sort_by_key(|r| r.depth);
+
+                    // Get debug string version of rendered rects
+                    let dstr = rects
+                        .into_iter()
+                        .map(|x| (x.label, x.x, x.y, x.width, x.height))
+                        .map(|(l, x, y, w, h)| format!("{l}: {x}:{y} {w}x{h}"))
+                        .collect::<Vec<_>>()
+                        .join("\n");
+
+                    ctx.copy_text(dstr);
+                }
+
+                ui.add_space(4.0);
+                ui.small("Drag the numbers, or click and type.");
+            });
+
+        egui::CentralPanel::default().show(ui, |ui| {
             let Some(layout) = self.layout.clone() else {
                 tracing::warn!("Empty layout!");
                 return;
@@ -180,11 +244,14 @@ impl eframe::App for PreviewerApp {
 
             let mut tree = taffy::TaffyTree::new();
             let root = layout.build_taffy_tree(&mut tree).unwrap();
+
+            // NEW: layout is computed against the user-chosen canvas size,
+            // not the window/viewport size.
             tree.compute_layout(
                 root,
                 taffy::Size {
-                    width: taffy::AvailableSpace::Definite(w),
-                    height: taffy::AvailableSpace::Definite(h),
+                    width: taffy::AvailableSpace::Definite(self.canvas_size.x),
+                    height: taffy::AvailableSpace::Definite(self.canvas_size.y),
                 },
             )
             .unwrap();
@@ -192,88 +259,100 @@ impl eframe::App for PreviewerApp {
             let mut rects = collect_rects(&tree, root).unwrap();
             rects.sort_by_key(|r| r.depth);
 
-            // --- hit-testing: one query for hover, one for click ---
-            let hover_pos = ctx
-                .pointer_hover_pos()
-                .filter(|&pos| !blocked_by_floating_ui(ctx, pos));
-            let hovered_id = hover_pos.and_then(|pos| topmost_rect_at(&rects, pos));
+            // NEW: whole dashboard scrolls if canvas_size > visible panel size
+            egui::ScrollArea::both()
+                .auto_shrink([false, false])
+                .show(ui, |ui| {
+                    let (response, painter) =
+                        ui.allocate_painter(self.canvas_size, egui::Sense::click());
+                    let origin = response.rect.min;
 
-            let clicked = ctx.input(|i| i.pointer.primary_clicked());
-            if clicked {
-                if let Some(pos) = ctx.input(|i| i.pointer.interact_pos()) {
-                    if !blocked_by_floating_ui(ctx, pos) {
-                        self.selected = topmost_rect_at(&rects, pos);
+                    // --- hit-testing: pointer -> canvas-local coords ---
+                    let hover_pos = ctx
+                        .pointer_hover_pos()
+                        .filter(|&pos| !blocked_by_floating_ui(&ctx, pos))
+                        .map(|pos| pos2(pos.x - origin.x, pos.y - origin.y));
+
+                    let hovered_id = hover_pos.and_then(|pos| topmost_rect_at(&rects, pos));
+
+                    if response.clicked() {
+                        if let Some(pos) = response.interact_pointer_pos() {
+                            let local = pos2(pos.x - origin.x, pos.y - origin.y);
+                            self.selected = topmost_rect_at(&rects, local);
+                        }
                     }
-                }
-            }
 
-            // --- draw every rect (unchanged from your version) ---
-            for r in &rects {
-                let x1 = r.x;
-                let y1 = r.y;
-                let x2 = x1 + r.width;
-                let y2 = y1 + r.height;
-                let ui_rect = egui::Rect::from_min_max(pos2(x1, y1), pos2(x2, y2));
+                    // --- draw every rect, offset by canvas origin ---
+                    for r in &rects {
+                        let x1 = origin.x + r.x;
+                        let y1 = origin.y + r.y;
+                        let x2 = x1 + r.width;
+                        let y2 = y1 + r.height;
+                        let ui_rect = egui::Rect::from_min_max(pos2(x1, y1), pos2(x2, y2));
 
-                let [red, green, blue] = self.rc.seed(u64::from(r.node_id)).to_rgb_array();
-                let [ir, ig, ib] = [255 - red, 255 - green, 255 - blue];
-                let debugstr = format!("{x1}:{y1}\n{x2}:{y2}");
+                        let [red, green, blue] = self.rc.seed(u64::from(r.node_id)).to_rgb_array();
+                        let [ir, ig, ib] = [255 - red, 255 - green, 255 - blue];
+                        let debugstr = format!("{x1}:{y1}\n{x2}:{y2}");
 
-                painter.rect_filled(ui_rect, 0, egui::Color32::from_rgb(red, green, blue));
+                        painter.rect_filled(ui_rect, 0, egui::Color32::from_rgb(red, green, blue));
 
-                // thicker border if this node is the currently-selected one
-                let stroke_width = if self.selected == Some(r.node_id) {
-                    4.0
-                } else {
-                    2.0
-                };
-                painter.rect_stroke(
-                    ui_rect,
-                    0,
-                    (stroke_width, egui::Color32::from_rgb(ir, ig, ib)),
-                    egui::StrokeKind::Inside,
-                );
+                        let stroke_width = if self.selected == Some(r.node_id) {
+                            4.0
+                        } else {
+                            2.0
+                        };
+                        painter.rect_stroke(
+                            ui_rect,
+                            0,
+                            (stroke_width, egui::Color32::from_rgb(ir, ig, ib)),
+                            egui::StrokeKind::Inside,
+                        );
 
-                painter.text(
-                    pos2(x1 + 5.0, y1 + 5.0),
-                    egui::Align2::LEFT_TOP,
-                    &debugstr,
-                    egui::FontId::proportional(16.0),
-                    egui::Color32::BLUE,
-                );
-            }
-
-            // --- tooltip: transient, follows hover ---
-            if let Some(id) = hovered_id {
-                if let Some(r) = rects.iter().find(|r| r.node_id == id) {
-                    if let Some(pos) = hover_pos {
-                        egui::Area::new(egui::Id::new("preview_tooltip"))
-                            .fixed_pos(pos + egui::vec2(12.0, 12.0)) // small offset so it doesn't sit under the cursor
-                            .order(egui::Order::Tooltip)
-                            .show(ctx, |ui| {
-                                egui::Frame::popup(ui.style()).show(ui, |ui| {
-                                    ui.label(format!("{}", r.label));
-                                });
-                            });
+                        painter.text(
+                            pos2(x1 + 5.0, y1 + 5.0),
+                            egui::Align2::LEFT_TOP,
+                            &debugstr,
+                            egui::FontId::proportional(16.0),
+                            egui::Color32::BLUE,
+                        );
                     }
-                }
-            }
 
-            // --- debug panel: persistent, stays open until closed or re-clicked elsewhere ---
+                    // --- tooltip ---
+                    if let Some(id) = hovered_id {
+                        if let Some(r) = rects.iter().find(|r| r.node_id == id) {
+                            if let Some(local) = hover_pos {
+                                let screen_pos = pos2(origin.x + local.x, origin.y + local.y);
+                                egui::Area::new(egui::Id::new("preview_tooltip"))
+                                    .fixed_pos(screen_pos + egui::vec2(12.0, 12.0))
+                                    .order(egui::Order::Tooltip)
+                                    .show(&ctx, |ui| {
+                                        egui::Frame::popup(ui.style()).show(ui, |ui| {
+                                            ui.label(format!("{}", r.label));
+                                        });
+                                    });
+                            }
+                        }
+                    }
+                });
+
+            // --- debug panel: unaffected by scrolling, still a floating Window ---
             if let Some(id) = self.selected {
                 if let Some(r) = rects.iter().find(|r| r.node_id == id) {
                     egui::Window::new("Node Debug")
-                        .default_height(200.0) // give it a sane starting size so scrolling is actually needed/visible
-                        .show(ctx, |ui| {
+                        .default_height(200.0)
+                        .show(&ctx, |ui| {
                             egui::ScrollArea::vertical()
                                 .max_height(200.0)
-                                .auto_shrink([false, false]) // [x, y] — false means "don't shrink on this axis"
+                                .auto_shrink([false, false])
                                 .show(ui, |ui| {
                                     ui.label(format!("NodeId: {:?}", r.node_id));
                                     ui.label(format!("pos: {:.0},{:.0}", r.x, r.y));
                                     ui.label(format!("size: {:.0}x{:.0}", r.width, r.height));
                                     ui.label(format!("depth: {}", r.depth));
-                                    ui.label(format!("style string (ignore constant value it's garbage mem ptr): \n{}", r.style_str));
+                                    ui.label(format!(
+                                        "style string (ignore constant value it's garbage mem ptr): \n{}",
+                                        r.style_str
+                                    ));
                                 });
 
                             if ui.button("Close").clicked() {

@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::{convert::TryFrom, fmt::Debug};
 
 use eyre::Context;
 use roxmltree::{Document, Node};
@@ -6,7 +6,10 @@ use strum::EnumString;
 use taffy::TaffyTree;
 
 use crate::{
-    block::BlockProperties, commons::FromXmlAttrs, flex::FlexProperties, grid::GridProperties,
+    block::BlockProperties,
+    commons::{FromXmlAttrs, LeafProperties},
+    flex::FlexProperties,
+    grid::GridProperties,
 };
 
 #[derive(EnumString, Debug, Clone)]
@@ -17,53 +20,55 @@ pub enum Leaf {
     Other(String),
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct LeafContext {
+    pub id: Option<String>,
+    // TODO: Find something better than this
+    pub debug_str: String,
+}
+
 impl Leaf {
-    pub fn build_taffy_tree(self, tree: &mut TaffyTree) -> eyre::Result<taffy::NodeId> {
+    fn build_leaf<P: LeafProperties + Debug>(
+        tree: &mut TaffyTree<LeafContext>,
+        leaf: LeafStruct<P>,
+        kind: &str,
+    ) -> eyre::Result<taffy::NodeId> {
+        let style = leaf.props.to_taffy_style();
+        let child_leaves = leaf
+            .children
+            .into_iter()
+            .map(|x| x.build_taffy_tree(tree))
+            .collect::<Result<Vec<_>, eyre::Error>>()?;
+
+        let this_leaf = tree
+            .new_with_children(style, &child_leaves)
+            .wrap_err_with(|| format!("Failed to create {kind} leaf"))?;
+
+        tree.set_node_context(
+            this_leaf,
+            Some(LeafContext {
+                id: leaf.props.id(),
+                debug_str: format!("{:#?}", leaf.props),
+            }),
+        )
+        .wrap_err("Failed to set node context")?;
+
+        Ok(this_leaf)
+    }
+
+    pub fn build_taffy_tree(
+        self,
+        tree: &mut TaffyTree<LeafContext>,
+    ) -> eyre::Result<taffy::NodeId> {
         match self {
-            Leaf::Flex(flex_leaf) => {
-                let leaf_style = flex_leaf.props.to_taffy_style();
-
-                let child_leaves = flex_leaf
-                    .children
-                    .into_iter()
-                    .map(|x| x.build_taffy_tree(tree))
-                    .collect::<Result<Vec<_>, eyre::Error>>()?;
-
-                tree.new_with_children(leaf_style, &child_leaves)
-                    .wrap_err("Failed to create flex leaf")
-            }
-            Leaf::Block(block_leaf) => {
-                let leaf_style = block_leaf.props.to_taffy_style();
-
-                let child_leaves = block_leaf
-                    .children
-                    .into_iter()
-                    .map(|x| x.build_taffy_tree(tree))
-                    .collect::<Result<Vec<_>, eyre::Error>>()?;
-
-                tree.new_with_children(leaf_style, &child_leaves)
-                    .wrap_err("Failed to create block leaf")
-            }
-            Leaf::Grid(grid_leaf) => {
-                let leaf_style = grid_leaf.props.to_taffy_style();
-
-                let child_leaves = grid_leaf
-                    .children
-                    .into_iter()
-                    .map(|x| x.build_taffy_tree(tree))
-                    .collect::<Result<Vec<_>, eyre::Error>>()?;
-
-                tree.new_with_children(leaf_style, &child_leaves)
-                    .wrap_err("Failed to create grid leaf")
-            }
+            Leaf::Flex(leaf) => Self::build_leaf(tree, leaf, "flex"),
+            Leaf::Block(leaf) => Self::build_leaf(tree, leaf, "block"),
+            Leaf::Grid(leaf) => Self::build_leaf(tree, leaf, "grid"),
             Leaf::Other(tag) => {
                 tracing::warn!("Unknown tag type {tag}. Replacing with default tag");
                 tree.new_leaf(taffy::Style::default())
                     .wrap_err("Failed to create unknown leaf")
             }
-            // This arm is for catch-all when any leaf added
-            #[allow(unused)]
-            leaf => unimplemented!(),
         }
     }
 }
@@ -130,7 +135,10 @@ pub fn parse_layout(xmlstr: &str) -> eyre::Result<Layout> {
 }
 
 impl Layout {
-    pub fn build_taffy_tree(self, tree: &mut TaffyTree) -> eyre::Result<taffy::NodeId> {
+    pub fn build_taffy_tree(
+        self,
+        tree: &mut TaffyTree<LeafContext>,
+    ) -> eyre::Result<taffy::NodeId> {
         let child_leafs = self
             .children
             .into_iter()

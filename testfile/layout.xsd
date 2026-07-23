@@ -64,6 +64,7 @@
   </xs:group>
 
   <xs:complexType name="FlexType">
+    <xs:attribute name="id" type="xs:string" use="optional"/>
     <xs:attribute name="direction" type="FlexDirectionType" use="optional" default="row"/>
     <xs:attribute name="reverse" type="xs:boolean" use="optional" default="false"/>
     <xs:attribute name="wrap" type="FlexWrapType" use="optional" default="no-wrap"/>
@@ -85,6 +86,7 @@
   </xs:complexType>
 
   <xs:complexType name="BlockType">
+    <xs:attribute name="id" type="xs:string" use="optional"/>
     <xs:attribute name="size" type="xs:string" use="optional"/>
     <xs:attribute name="min-size" type="xs:string" use="optional"/>
     <xs:attribute name="max-size" type="xs:string" use="optional"/>
@@ -95,6 +97,7 @@
   </xs:complexType>
 
   <xs:complexType name="GridType">
+    <xs:attribute name="id" type="xs:string" use="optional"/>
     <xs:attribute name="columns" type="xs:string" use="optional" default="none"/>
     <xs:attribute name="rows" type="xs:string" use="optional" default="none"/>
     <xs:attribute name="gap-row" type="xs:decimal" use="optional" default="0.0"/>
@@ -111,6 +114,7 @@
   <xs:complexType name="LayoutType">
     <xs:group ref="LeafChildren" minOccurs="0" maxOccurs="unbounded"/>
     <xs:attribute name="version" type="xs:string" use="optional" default="0.1.0"/>
+    <xs:attribute name="id" type="xs:string" use="optional"/>
   </xs:complexType>
 
   <!-- Wrapper element types: attributes from FlexType/BlockType, plus recursive children. -->

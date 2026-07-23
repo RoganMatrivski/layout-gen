@@ -1,8 +1,11 @@
-use crate::commons::{parse_dimension, parse_length_percentage, parse_length_percentage_auto};
+use crate::commons::{
+    LeafProperties, parse_dimension, parse_length_percentage, parse_length_percentage_auto,
+};
 use taffy::prelude::*;
 
-#[derive(Debug, Clone, leaf_derive::FromXmlAttrs)]
+#[derive(serde::Serialize, Debug, Clone, leaf_derive::FromXmlAttrs)]
 pub struct BlockProperties {
+    pub id: Option<String>,
     pub size: SizeProp,
     pub min_size: SizeProp,
     pub max_size: SizeProp,
@@ -16,6 +19,7 @@ pub struct BlockProperties {
 impl Default for BlockProperties {
     fn default() -> Self {
         Self {
+            id: None,
             size: SizeProp {
                 width: "auto".into(),
                 height: "auto".into(),
@@ -47,8 +51,12 @@ impl Default for BlockProperties {
 }
 use crate::commons::{EdgeInsets, SizeProp};
 
-impl BlockProperties {
-    pub fn to_taffy_style(&self) -> Style {
+impl LeafProperties for BlockProperties {
+    fn id(&self) -> Option<String> {
+        self.id.clone()
+    }
+
+    fn to_taffy_style(&self) -> Style {
         // crate::commons
         Style {
             display: Display::Block,

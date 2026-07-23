@@ -17,7 +17,7 @@ pub fn derive_from_xml_attrs(input: TokenStream) -> TokenStream {
 
     let parses = fields.iter().map(|f| {
         let ident = f.ident.as_ref().expect("named field");
-        let attr_name = ident.to_string().replace('_', "-"); // <- only change
+        let attr_name = ident.to_string().replace('_', "-");
         let ty = &f.ty;
 
         if let Some(inner_ty) = option_inner_type(ty) {

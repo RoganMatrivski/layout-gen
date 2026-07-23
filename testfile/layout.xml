@@ -1,16 +1,18 @@
 <layout
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="layout.xsd"
+    id="layout"
 >
     <flex
         grow="1"
         align-items="center"
         justify-content="space-evenly"
+        id="main-flex"
     >
-    <block size="50px"/>
-    <block size="50px"/>
+    <block size="50px" id="block-1"/>
+    <block size="50px" id="block-2"/>
         <!-- <component type="" text-size=""> -->
-        <block size="50px"/>
-        <block size="50px"/>
+        <block size="50px" id="block-3"/>
+        <block size="50px" id="block-4"/>
     </flex>
 </layout>

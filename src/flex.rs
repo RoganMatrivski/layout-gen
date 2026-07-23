@@ -2,7 +2,8 @@ use strum::EnumString;
 use taffy::prelude::*;
 
 use crate::commons::{
-    EdgeInsets, SizeProp, parse_dimension, parse_length_percentage, parse_length_percentage_auto,
+    EdgeInsets, LeafProperties, SizeProp, parse_dimension, parse_length_percentage,
+    parse_length_percentage_auto,
 };
 
 #[derive(Debug, Default, EnumString, Clone)]
@@ -46,6 +47,8 @@ pub enum Justify {
 
 #[derive(Debug, Clone, leaf_derive::FromXmlAttrs)]
 pub struct FlexProperties {
+    pub id: Option<String>,
+
     pub direction: FlexDirection,
     pub reverse: bool,
     pub wrap: FlexWrap,
@@ -69,6 +72,7 @@ pub struct FlexProperties {
 impl Default for FlexProperties {
     fn default() -> Self {
         Self {
+            id: None,
             direction: FlexDirection::Row,
             reverse: false,
             wrap: FlexWrap::NoWrap,
@@ -161,8 +165,14 @@ impl FlexProperties {
             FlexWrap::ReverseWrap => taffy::FlexWrap::WrapReverse,
         }
     }
+}
 
-    pub fn to_taffy_style(&self) -> Style {
+impl LeafProperties for FlexProperties {
+    fn id(&self) -> Option<String> {
+        self.id.clone()
+    }
+
+    fn to_taffy_style(&self) -> Style {
         Style {
             display: Display::Flex,
             flex_direction: self.resolved_direction(),

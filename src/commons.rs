@@ -231,3 +231,8 @@ pub trait FromXmlAttrs: Sized {
     type Error: std::fmt::Display + Send + Sync + 'static;
     fn from_node(node: roxmltree::Node, defaults: &Self) -> Result<Self, Self::Error>;
 }
+
+pub trait LeafProperties {
+    fn to_taffy_style(&self) -> taffy::Style;
+    fn id(&self) -> Option<String>;
+}

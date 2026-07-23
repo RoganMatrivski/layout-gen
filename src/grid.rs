@@ -1,12 +1,13 @@
 use crate::commons::{
-    EdgeInsets, SizeProp, parse_dimension, parse_grid_template, parse_length_percentage,
-    parse_length_percentage_auto,
+    EdgeInsets, LeafProperties, SizeProp, parse_dimension, parse_grid_template,
+    parse_length_percentage, parse_length_percentage_auto,
 };
 // use serde::{Deserialize, Serialize};
 use taffy::prelude::*;
 
 #[derive(Debug, Clone, leaf_derive::FromXmlAttrs)]
 pub struct GridProperties {
+    pub id: Option<String>,
     pub columns: String,
     pub rows: String,
     pub gap_row: f32,
@@ -24,6 +25,8 @@ pub struct GridProperties {
 impl Default for GridProperties {
     fn default() -> Self {
         Self {
+            id: None,
+
             columns: "none".into(),
             rows: "none".into(),
             gap_row: 0.0,
@@ -58,8 +61,12 @@ impl Default for GridProperties {
     }
 }
 
-impl GridProperties {
-    pub fn to_taffy_style(&self) -> Style {
+impl LeafProperties for GridProperties {
+    fn id(&self) -> Option<String> {
+        self.id.clone()
+    }
+
+    fn to_taffy_style(&self) -> Style {
         Style {
             display: Display::Grid,
             grid_template_columns: parse_grid_template(&self.columns),
