@@ -110,6 +110,8 @@ fn main() -> Result<(), Report> {
 
                 // UI state
                 selected: None,
+                drawable_only: false,
+
                 toasts: egui_toast::Toasts::new(),
                 canvas_size: egui::vec2(1280.0, 800.0), // sane default, tweak to taste
             }))
@@ -137,6 +139,7 @@ struct PreviewerApp {
 
     // UI Fields
     selected: Option<taffy::NodeId>,
+    drawable_only: bool,
 
     toasts: egui_toast::Toasts,
     canvas_size: egui::Vec2,
@@ -150,6 +153,37 @@ impl PreviewerApp {
     //     // for e.g. egui::PaintCallback.
     //     Self { layout_file: file }
     // }
+
+    fn get_render_rects(&self) -> eyre::Result<Vec<layout_gen::RenderRect>> {
+        let Some(layout) = self.layout.clone() else {
+            tracing::warn!("Empty layout!");
+            return Ok(vec![]);
+        };
+
+        let mut tree = taffy::TaffyTree::new();
+        let root = layout.build_taffy_tree(&mut tree)?;
+
+        // NEW: layout is computed against the user-chosen canvas size,
+        // not the window/viewport size.
+        tree.compute_layout(
+            root,
+            taffy::Size {
+                width: taffy::AvailableSpace::Definite(self.canvas_size.x),
+                height: taffy::AvailableSpace::Definite(self.canvas_size.y),
+            },
+        )
+        .unwrap();
+
+        let mut rects = if self.drawable_only {
+            collect_drawable_rects(&tree, root)
+        } else {
+            collect_debug_rects(&tree, root)
+        }?;
+
+        rects.sort_by_key(|r| r.depth);
+
+        Ok(rects)
+    }
 }
 
 impl eframe::App for PreviewerApp {
@@ -192,6 +226,8 @@ impl eframe::App for PreviewerApp {
                         .range(50.0..=8000.0)
                         .speed(2.0),
                 );
+                ui.add_space(8.0);
+                ui.checkbox(&mut self.drawable_only, "Only drawable");
 
                 ui.add_space(8.0);
                 if ui.button("Fit to window").clicked() {
@@ -199,27 +235,7 @@ impl eframe::App for PreviewerApp {
                 }
 
                 if ui.button("Copy Debug Layout").clicked() {
-                    let Some(layout) = self.layout.clone() else {
-                        tracing::warn!("Empty layout!");
-                        return;
-                    };
-
-                    let mut tree = taffy::TaffyTree::new();
-                    let root = layout.build_taffy_tree(&mut tree).unwrap();
-
-                    // NEW: layout is computed against the user-chosen canvas size,
-                    // not the window/viewport size.
-                    tree.compute_layout(
-                        root,
-                        taffy::Size {
-                            width: taffy::AvailableSpace::Definite(self.canvas_size.x),
-                            height: taffy::AvailableSpace::Definite(self.canvas_size.y),
-                        },
-                    )
-                    .unwrap();
-
-                    let mut rects = collect_drawable_rects(&tree, root).unwrap();
-                    rects.sort_by_key(|r| r.depth);
+                    let rects = self.get_render_rects().expect("Failed to get render rects");
 
                     // Get debug string version of rendered rects
                     let dstr = rects
@@ -239,28 +255,7 @@ impl eframe::App for PreviewerApp {
             });
 
         egui::CentralPanel::default().show(ui, |ui| {
-            let Some(layout) = self.layout.clone() else {
-                tracing::warn!("Empty layout!");
-                return;
-            };
-
-            let mut tree = taffy::TaffyTree::new();
-            let root = layout.build_taffy_tree(&mut tree).unwrap();
-
-            // NEW: layout is computed against the user-chosen canvas size,
-            // not the window/viewport size.
-            tree.compute_layout(
-                root,
-                taffy::Size {
-                    width: taffy::AvailableSpace::Definite(self.canvas_size.x),
-                    height: taffy::AvailableSpace::Definite(self.canvas_size.y),
-                },
-            )
-            .unwrap();
-
-            // let mut rects = collect_debug_rects(&tree, root).unwrap();
-            let mut rects = collect_drawable_rects(&tree, root).unwrap();
-            rects.sort_by_key(|r| r.depth);
+            let rects = self.get_render_rects().expect("Failed to get render rects");
 
             // NEW: whole dashboard scrolls if canvas_size > visible panel size
             egui::ScrollArea::both()

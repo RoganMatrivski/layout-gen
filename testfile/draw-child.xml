@@ -1,0 +1,38 @@
+<!-- Yes the file name kinda problematic. no, i won't fix it -->
+<layout
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="layout.xsd"
+    version="0.1.0"
+    id="draw-nesting-test" >
+
+  <flex direction="column" grow="1" id="page">
+
+    <!-- outer has its own draw AND a nested flex with its own draw -->
+    <flex height="200px" id="outer">
+      <draw component="rect" variant="background" size="full"/>
+
+      <flex direction="row" grow="1" id="inner">
+        <draw component="rect" variant="highlight" size="full"/>
+
+        <!-- plus ordinary layout children alongside the inner draw -->
+        <block width="100px" height="40px" id="inner-child-1"/>
+        <block width="100px" height="40px" id="inner-child-2"/>
+      </flex>
+
+    </flex>
+
+    <!-- sibling section: multiple plain layout children, one drawable mixed in -->
+    <flex direction="row" grow="1" gap-column="12" id="row-mixed">
+      <block width="80px" height="80px" id="mixed-child-1"/>
+
+      <block width="80px" height="80px" id="mixed-child-2">
+        <draw component="icon" variant="star" size="24px"/>
+      </block>
+
+      <block width="80px" height="80px" id="mixed-child-3"/>
+      <block width="80px" height="80px" id="mixed-child-4"/>
+    </flex>
+
+  </flex>
+
+</layout>
