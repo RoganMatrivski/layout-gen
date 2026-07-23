@@ -30,31 +30,6 @@ pub fn collect_rects(
     Ok(out)
 }
 
-fn changed_fields<T: serde::Serialize>(
-    old: &T,
-    new: &T,
-) -> serde_json::Map<String, serde_json::Value> {
-    let old = serde_json::to_value(old).unwrap();
-    let new = serde_json::to_value(new).unwrap();
-
-    let old_obj = old.as_object().unwrap();
-    let new_obj = new.as_object().unwrap();
-
-    let mut changed = serde_json::Map::new();
-
-    for (key, old_val) in old_obj {
-        let Some(new_val) = new_obj.get(key) else {
-            continue;
-        };
-
-        if old_val != new_val {
-            changed.insert(key.clone(), new_val.clone());
-        }
-    }
-
-    changed
-}
-
 fn collect_rects_inner(
     tree: &taffy::TaffyTree<layout::LeafContext>,
     node: taffy::NodeId,
