@@ -65,3 +65,15 @@ fn collect_rects_inner(
 
     Ok(())
 }
+
+pub fn collect_drawable_rects(
+    tree: &taffy::TaffyTree<layout::LeafContext>,
+    root: taffy::NodeId,
+) -> eyre::Result<Vec<RenderRect>> {
+    let mut out = Vec::new();
+    collect_rects_inner(tree, root, 0.0, 0.0, 0, &mut out)?;
+    Ok(out
+        .into_iter()
+        .filter(|x| x.draw.is_some())
+        .collect::<Vec<_>>())
+}

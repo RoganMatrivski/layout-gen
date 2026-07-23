@@ -1,7 +1,7 @@
 use std::io::Read;
 
 use color_eyre::Report;
-use layout_gen::{collect_debug_rects, layout::*};
+use layout_gen::{collect_debug_rects, collect_drawable_rects, layout::*};
 mod init;
 
 use notify_debouncer_full::{DebounceEventResult, new_debouncer};
@@ -218,7 +218,7 @@ impl eframe::App for PreviewerApp {
                     )
                     .unwrap();
 
-                    let mut rects = collect_debug_rects(&tree, root).unwrap();
+                    let mut rects = collect_drawable_rects(&tree, root).unwrap();
                     rects.sort_by_key(|r| r.depth);
 
                     // Get debug string version of rendered rects
@@ -258,7 +258,8 @@ impl eframe::App for PreviewerApp {
             )
             .unwrap();
 
-            let mut rects = collect_debug_rects(&tree, root).unwrap();
+            // let mut rects = collect_debug_rects(&tree, root).unwrap();
+            let mut rects = collect_drawable_rects(&tree, root).unwrap();
             rects.sort_by_key(|r| r.depth);
 
             // NEW: whole dashboard scrolls if canvas_size > visible panel size
