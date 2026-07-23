@@ -339,6 +339,16 @@ impl eframe::App for PreviewerApp {
                         }
                     }
 
+                    // Which rect (if any) is under the pointer right now.
+                    let hovered_id = response
+                        .hover_pos()
+                        .map(|p| pos2(p.x - origin.x, p.y - origin.y))
+                        .and_then(|local| topmost_rect_at(&rects, local));
+
+                    let title_font = egui::FontId::proportional(13.0);
+                    let detail_font = egui::FontId::monospace(11.0);
+
+                    // --- pass 1: draw fills, strokes, and a short label-only card ---
                     for r in &rects {
                         let x1 = origin.x + r.x;
                         let y1 = origin.y + r.y;
@@ -348,7 +358,6 @@ impl eframe::App for PreviewerApp {
 
                         let [red, green, blue] = self.rc.seed(u64::from(r.node_id)).to_rgb_array();
                         let [ir, ig, ib] = [255 - red, 255 - green, 255 - blue];
-                        let rectstr = format!("{}\n{}x{}", r.label, r.width, r.height);
 
                         painter.rect_filled(ui_rect, 0, egui::Color32::from_rgb(red, green, blue));
 
@@ -364,13 +373,89 @@ impl eframe::App for PreviewerApp {
                             egui::StrokeKind::Inside,
                         );
 
-                        painter.text(
-                            pos2(x1 + 5.0, y1 + 5.0),
-                            egui::Align2::LEFT_TOP,
-                            &rectstr,
-                            egui::FontId::proportional(16.0),
-                            egui::Color32::BLUE,
+                        // Skip the short label for whichever rect is hovered — the full
+                        // card drawn in pass 2 replaces it so we don't double them up.
+                        if hovered_id == Some(r.node_id) {
+                            continue;
+                        }
+
+                        let galley = painter.layout_no_wrap(
+                            r.label.clone(),
+                            title_font.clone(),
+                            egui::Color32::WHITE,
                         );
+                        let padding = 4.0;
+                        let card_size = galley.size() + egui::vec2(padding * 2.0, padding * 2.0);
+                        let card_rect =
+                            egui::Rect::from_min_size(pos2(x1 + 4.0, y1 + 4.0), card_size);
+
+                        painter.rect_filled(card_rect, 4.0, egui::Color32::from_black_alpha(150));
+                        painter.galley(
+                            pos2(card_rect.min.x + padding, card_rect.min.y + padding),
+                            galley,
+                            egui::Color32::WHITE,
+                        );
+                    }
+
+                    // --- pass 2: full detail card for the hovered rect only, drawn last so it's on top ---
+                    if let Some(hid) = hovered_id {
+                        if let Some(r) = rects.iter().find(|r| r.node_id == hid) {
+                            let x1 = origin.x + r.x;
+                            let y1 = origin.y + r.y;
+
+                            let lines: Vec<(String, egui::FontId, egui::Color32)> = vec![
+                                (r.label.clone(), title_font, egui::Color32::WHITE),
+                                (
+                                    format!(
+                                        "{:.0}×{:.0}  @ {:.0},{:.0}",
+                                        r.width, r.height, r.x, r.y
+                                    ),
+                                    detail_font.clone(),
+                                    egui::Color32::from_gray(210),
+                                ),
+                                (
+                                    format!("depth {}  id {:?}", r.depth, r.node_id),
+                                    detail_font,
+                                    egui::Color32::from_gray(170),
+                                ),
+                            ];
+
+                            let galleys: Vec<_> = lines
+                                .into_iter()
+                                .map(|(text, font, color)| {
+                                    painter.layout_no_wrap(text, font, color)
+                                })
+                                .collect();
+
+                            let padding = 5.0;
+                            let line_gap = 2.0;
+                            let card_w = galleys.iter().map(|g| g.size().x).fold(0.0_f32, f32::max)
+                                + padding * 2.0;
+                            let card_h = galleys.iter().map(|g| g.size().y).sum::<f32>()
+                                + line_gap * (galleys.len().saturating_sub(1)) as f32
+                                + padding * 2.0;
+
+                            let card_rect = egui::Rect::from_min_size(
+                                pos2(x1 + 4.0, y1 + 4.0),
+                                egui::vec2(card_w, card_h),
+                            );
+                            painter.rect_filled(
+                                card_rect,
+                                4.0,
+                                egui::Color32::from_black_alpha(190),
+                            );
+
+                            let mut cursor_y = card_rect.min.y + padding;
+                            for galley in galleys {
+                                let h = galley.size().y;
+                                painter.galley(
+                                    pos2(card_rect.min.x + padding, cursor_y),
+                                    galley,
+                                    egui::Color32::WHITE,
+                                );
+                                cursor_y += h + line_gap;
+                            }
+                        }
                     }
                 });
         });
