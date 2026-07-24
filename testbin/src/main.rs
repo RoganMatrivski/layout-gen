@@ -1,7 +1,7 @@
 use std::io::Read;
 
 use color_eyre::Report;
-use layout_gen::{collect_debug_rects, collect_drawable_rects, layout::*};
+use layout_gen::{collect_debug_rects, collect_drawable_rects, get_drawable_layout, layout::*};
 mod init;
 
 use notify_debouncer_full::{DebounceEventResult, new_debouncer};
@@ -184,18 +184,22 @@ impl PreviewerApp {
     }
 }
 
+pub fn create_toast(text: impl Into<egui::WidgetText>) -> egui_toast::Toast {
+    egui_toast::Toast {
+        kind: egui_toast::ToastKind::Info,
+        text: text.into(),
+        options: egui_toast::ToastOptions::default()
+            .duration_in_seconds(3.0)
+            .show_progress(true)
+            .show_icon(true),
+        ..Default::default()
+    }
+}
+
 impl eframe::App for PreviewerApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         while let Ok(layout) = self.layout_rx.try_recv() {
-            self.toasts.add(egui_toast::Toast {
-                kind: egui_toast::ToastKind::Info,
-                text: "Layout file changed!".into(),
-                options: egui_toast::ToastOptions::default()
-                    .duration_in_seconds(3.0)
-                    .show_progress(true)
-                    .show_icon(true),
-                ..Default::default()
-            });
+            self.toasts.add(create_toast("Layout file changed!"));
             self.layout = Some(layout)
         }
 
@@ -245,6 +249,22 @@ impl eframe::App for PreviewerApp {
                         .join("\n");
 
                     ctx.copy_text(dstr);
+
+                    self.toasts.add(create_toast("Copied debug layout to JSON"));
+                }
+
+                if ui.button("Copy Drawable JSON Layout").clicked() {
+                    let original_value = self.drawable_only;
+                    self.drawable_only = true;
+                    let jsonstr = self.get_render_rects().expect("Failed to get render rects");
+                    self.drawable_only = original_value;
+
+                    ctx.copy_text(
+                        serde_json::to_string_pretty(&jsonstr).expect("Failed to serialize"),
+                    );
+
+                    self.toasts
+                        .add(create_toast("Copied drawable layout to JSON"));
                 }
 
                 ui.add_space(4.0);

@@ -1,6 +1,7 @@
+use serde::Serialize;
 use strum::EnumString;
 
-#[derive(Debug, Default, Clone, EnumString)]
+#[derive(Debug, Default, Clone, EnumString, Serialize)]
 #[strum(serialize_all = "kebab-case")]
 pub enum Anchor {
     TopLeft,
@@ -15,7 +16,7 @@ pub enum Anchor {
     BottomRight,
 }
 
-#[derive(Debug, Default, Clone, EnumString)]
+#[derive(Debug, Default, Clone, EnumString, Serialize)]
 #[strum(serialize_all = "kebab-case")]
 pub enum Fit {
     #[default]
@@ -26,7 +27,7 @@ pub enum Fit {
     ScaleDown,
 }
 
-#[derive(Debug, Default, Clone, EnumString)]
+#[derive(Debug, Default, Clone, EnumString, Serialize)]
 #[strum(serialize_all = "kebab-case")]
 pub enum Overflow {
     #[default]
@@ -34,7 +35,7 @@ pub enum Overflow {
     Hidden,
 }
 
-#[derive(Debug, Default, Clone, EnumString)]
+#[derive(Debug, Default, Clone, EnumString, Serialize)]
 pub enum Size {
     #[strum(serialize = "sm")]
     Small,
@@ -47,7 +48,7 @@ pub enum Size {
     ExtraLarge,
 }
 
-#[derive(Debug, Clone, leaf_derive::FromXmlAttrs)]
+#[derive(Debug, Clone, leaf_derive::FromXmlAttrs, Serialize)]
 pub struct DrawProperties {
     pub id: Option<String>,
     pub component: String,

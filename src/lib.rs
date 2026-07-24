@@ -1,3 +1,5 @@
+use eyre::Context;
+
 use crate::draw::DrawProperties;
 
 pub mod block;
@@ -7,8 +9,9 @@ pub mod flex;
 pub mod grid;
 pub mod layout;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct RenderRect {
+    #[serde(skip)]
     pub node_id: taffy::NodeId,
     pub x: f32,
     pub y: f32,
@@ -16,6 +19,7 @@ pub struct RenderRect {
     pub height: f32,
     pub depth: u32,    // handy for color-by-depth or indentation in either renderer
     pub label: String, // e.g. "Flex" / "Other(t)" — whatever you want shown on hover
+    #[serde(skip)]
     pub style_str: String,
 
     pub draw: Option<DrawProperties>,
@@ -76,4 +80,13 @@ pub fn collect_drawable_rects(
         .into_iter()
         .filter(|x| x.draw.is_some())
         .collect::<Vec<_>>())
+}
+
+pub fn get_drawable_layout(
+    tree: &taffy::TaffyTree<layout::LeafContext>,
+    root: taffy::NodeId,
+) -> eyre::Result<String> {
+    let rects = collect_drawable_rects(tree, root)?;
+
+    serde_json::to_string_pretty(&rects).wrap_err("Failed to serialize drawable layout")
 }
