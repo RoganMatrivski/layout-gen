@@ -3,6 +3,7 @@ use strum::EnumString;
 
 #[derive(Debug, Default, Clone, EnumString, Serialize)]
 #[strum(serialize_all = "kebab-case")]
+#[serde(rename_all = "kebab-case")]
 pub enum Anchor {
     TopLeft,
     TopCenter,
@@ -18,6 +19,7 @@ pub enum Anchor {
 
 #[derive(Debug, Default, Clone, EnumString, Serialize)]
 #[strum(serialize_all = "kebab-case")]
+#[serde(rename_all = "kebab-case")]
 pub enum Fit {
     #[default]
     Fill,
@@ -29,6 +31,7 @@ pub enum Fit {
 
 #[derive(Debug, Default, Clone, EnumString, Serialize)]
 #[strum(serialize_all = "kebab-case")]
+#[serde(rename_all = "kebab-case")]
 pub enum Overflow {
     #[default]
     Visible,
@@ -38,13 +41,17 @@ pub enum Overflow {
 #[derive(Debug, Default, Clone, EnumString, Serialize)]
 pub enum Size {
     #[strum(serialize = "sm")]
+    #[serde(rename = "sm")]
     Small,
     #[default]
     #[strum(serialize = "md")]
+    #[serde(rename = "md")]
     Medium,
     #[strum(serialize = "lg")]
+    #[serde(rename = "lg")]
     Large,
     #[strum(serialize = "xl")]
+    #[serde(rename = "xl")]
     ExtraLarge,
 }
 

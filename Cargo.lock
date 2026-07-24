@@ -2090,7 +2090,11 @@ name = "layout-gen-wasm"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
+ "eyre",
  "layout-gen",
+ "serde",
+ "serde_json",
+ "taffy",
  "wasm-bindgen",
  "wasm-bindgen-test",
 ]
