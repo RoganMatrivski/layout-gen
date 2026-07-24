@@ -60,8 +60,8 @@ fn main() -> Result<(), Report> {
 
                     let layout = match parse_layout(&filestr) {
                         Ok(l) => l,
-                        Err(_) => {
-                            tracing::warn!("Failed to parse layout");
+                        Err(e) => {
+                            tracing::warn!(?e, "Failed to parse layout");
                             return;
                         }
                     };

@@ -50,11 +50,55 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="AnchorType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="top-left"/>
+      <xs:enumeration value="top-center"/>
+      <xs:enumeration value="top-right"/>
+      <xs:enumeration value="center-left"/>
+      <xs:enumeration value="center"/>
+      <xs:enumeration value="center-right"/>
+      <xs:enumeration value="bottom-left"/>
+      <xs:enumeration value="bottom-center"/>
+      <xs:enumeration value="bottom-right"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FitType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="fill"/>
+      <xs:enumeration value="contain"/>
+      <xs:enumeration value="cover"/>
+      <xs:enumeration value="none"/>
+      <xs:enumeration value="scale-down"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SizeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sm"/>
+      <xs:enumeration value="md"/>
+      <xs:enumeration value="lg"/>
+      <xs:enumeration value="xl"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="OverflowType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="visible"/>
+      <xs:enumeration value="hidden"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:complexType name="DrawType">
     <xs:attribute name="id" type="xs:string" use="optional"/>
-    <xs:attribute name="component" type="xs:string" use="optional"/>
-    <xs:attribute name="variant" type="xs:string" use="optional"/>
-    <xs:attribute name="size" type="xs:string" use="optional"/>
+    <xs:attribute name="component" type="xs:string" use="required"/>
+    <xs:attribute name="variant" type="xs:string" use="required"/>
+    <xs:attribute name="size" type="SizeType" use="optional" default="md"/>
+    <xs:attribute name="align" type="AnchorType" use="optional" default="center"/>
+    <xs:attribute name="fit" type="FitType" use="optional" default="fill"/>
+    <xs:attribute name="overflow" type="OverflowType" use="optional" default="visible"/>
+    <xs:attribute name="opacity" type="xs:decimal" use="optional" default="1.0"/>
   </xs:complexType>
 
   <!--

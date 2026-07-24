@@ -9,10 +9,10 @@
 
     <!-- outer has its own draw AND a nested flex with its own draw -->
     <flex height="200px" id="outer">
-      <draw component="rect" variant="background" size="full"/>
+      <draw component="rect" variant="background" size="md"/>
 
       <flex direction="row" grow="1" id="inner">
-        <draw component="rect" variant="highlight" size="full"/>
+        <draw component="rect" variant="highlight" size="md"/>
 
         <!-- plus ordinary layout children alongside the inner draw -->
         <block width="100px" height="40px" id="inner-child-1"/>
@@ -26,7 +26,7 @@
       <block width="80px" height="80px" id="mixed-child-1"/>
 
       <block width="80px" height="80px" id="mixed-child-2">
-        <draw component="icon" variant="star" size="24px"/>
+        <draw component="icon" variant="star" size="sm"/>
       </block>
 
       <block width="80px" height="80px" id="mixed-child-3"/>

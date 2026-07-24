@@ -11,11 +11,11 @@
       <flex direction="row" justify-content="space-between" align-items="center" grow="1" id="header-flex">
 
         <block width="150px" height="32px" id="header-logo">
-          <draw component="image" variant="brand-mark" size="contain"/>
+          <draw component="image" variant="brand-mark" size="md"/>
         </block>
 
         <block width="200px" height="24px" id="header-title">
-          <draw component="text" variant="heading" size="16px"/>
+          <draw component="text" variant="heading" size="sm"/>
         </block>
 
       </flex>
@@ -27,11 +27,11 @@
       <flex direction="column" width="240px" shrink="0" id="sidebar">
 
         <block height="48px" id="nav-item-1">
-          <draw component="button" variant="ghost" size="full"/>
+          <draw component="button" variant="ghost" size="sm"/>
         </block>
 
         <block height="48px" id="nav-item-2">
-          <draw component="button" variant="ghost" size="full"/>
+          <draw component="button" variant="ghost" size="sm"/>
         </block>
 
         <!-- deliberately no <draw> here - pure spacer, should have draw: None -->
@@ -42,11 +42,11 @@
       <flex direction="column" grow="1" gap-row="16" id="main">
 
         <block height="200px" id="chart-panel">
-          <draw component="chart" variant="line" size="responsive"/>
+          <draw component="chart" variant="line" size="lg"/>
         </block>
 
         <block flex-grow="1" id="table-panel">
-          <draw component="table" variant="striped" size="responsive"/>
+          <draw component="table" variant="striped" size="lg"/>
         </block>
 
       </flex>
