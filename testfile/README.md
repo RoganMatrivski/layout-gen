@@ -2,76 +2,54 @@
 
 This document defines an XML-based API for describing UI layouts that can be ingested by the `layout-gen` engine.
 
-## Overview
+## Supported Elements
+The XML API defines the following core elements:
+- `<layout>`: The root container.
+- `<flex>`: A flexbox layout container.
+- `<block>`: A rectangular block element.
+- `<grid>`: A grid layout container.
+- `<draw>`: A drawable particle nested within other elements.
 
-The XML API provides a structured way to define tree-based UI layouts, mapping to Taffy styles and structures.
+## Attribute Reference
 
-## Schema Structure
+### Common Attributes
+- `id`: Optional unique identifier.
+- `width`, `height`, `min-width`, `min-height`, `max-width`, `max-height`: Opaque strings (e.g., `px`, `%`).
+- `padding`, `margin`: Opaque strings.
 
-Each layout is defined within a `<layout>` root element.
+### Flex Attributes
+- `direction`: `row`, `column`
+- `reverse`: `true`, `false`
+- `wrap`: `no-wrap`, `wrap`, `reverse-wrap`
+- `justify-content`: `start`, `end`, `center`, `space-between`, `space-around`, `space-evenly`
+- `align-items`, `align-content`, `align-self`: `start`, `end`, `center`, `stretch`
+- `gap-row`, `gap-column`: decimal values.
+- `grow`, `shrink`: decimal values.
+- `basis`: opaque string.
 
-### Element: `<node>`
-Represents a UI element.
+### Grid Attributes
+- `columns`, `rows`: Opaque strings (e.g., `repeat(4,1fr)`).
+- `gap-row`, `gap-column`, `flex-grow`, `flex-shrink`: decimal values.
 
-- **Attributes:**
-    - `id`: Optional unique identifier for the node.
-    - `label`: Optional display name for debugging/rendering.
-
-- **Child Elements:**
-    - `<style>`: Defines the Taffy style properties.
-    - `<node>` (nested): Represents children of the current node.
-
-## Full Style Attribute Reference
-
-The following Taffy-supported properties can be used within the `<style>` block:
-
-### Display & Layout
-- `display`: `none`, `flex`, `grid`
-- `position`: `relative`, `absolute`
-- `flex_direction`: `row`, `column`, `row-reverse`, `column-reverse`
-- `flex_wrap`: `no-wrap`, `wrap`, `wrap-reverse`
-- `flex_grow`: `float` (e.g., `1.0`)
-- `flex_shrink`: `float` (e.g., `1.0`)
-- `flex_basis`: `auto`, `px`, `%`
-
-### Sizing
-- `width`: `auto`, `px`, `%`
-- `height`: `auto`, `px`, `%`
-- `min_width`, `max_width`: `auto`, `px`, `%`
-- `min_height`, `max_height`: `auto`, `px`, `%`
-- `aspect_ratio`: `float`
-
-### Alignment & Spacing
-- `justify_content`: `flex-start`, `flex-end`, `center`, `space-between`, `space-around`, `space-evenly`
-- `align_items`: `flex-start`, `flex-end`, `center`, `baseline`, `stretch`
-- `align_self`: `auto`, `flex-start`, `flex-end`, `center`, `baseline`, `stretch`
-- `align_content`: `flex-start`, `flex-end`, `center`, `space-between`, `space-around`, `stretch`
-- `gap`: `px`, `%`
-- `margin`, `padding`: `px`, `%` (can be specified as `top`, `bottom`, `left`, `right`)
-- `inset`: `px`, `%` (for absolute positioning)
+### Draw Attributes
+- `component`: Required string.
+- `variant`: Required string.
+- `size`: `sm`, `md`, `lg`, `xl` (default `md`).
+- `align`: `top-left`, `top-center`, `top-right`, `center-left`, `center`, `center-right`, `bottom-left`, `bottom-center`, `bottom-right`.
+- `fit`: `fill`, `contain`, `cover`, `none`, `scale-down`.
+- `overflow`: `visible`, `hidden`.
+- `opacity`: decimal `0.0`–`1.0`.
 
 ## Example Layout
 
 ```xml
-<layout>
-  <node id="root" label="AppContainer">
-    <style>
-      <display>flex</display>
-      <width>100%</width>
-      <height>100%</height>
-    </style>
-    <node id="header" label="Header">
-      <style>
-        <height>50px</height>
-        <background_color>#f0f0f0</background_color>
-      </style>
-    </node>
-    <node id="content" label="MainContent">
-      <style>
-        <flex_grow>1</flex_grow>
-      </style>
-    </node>
-  </node>
+<layout id="app">
+  <flex direction="row" grow="1">
+    <block width="200px" id="sidebar"/>
+    <block id="main">
+      <draw component="image" variant="hero" size="lg" align="center"/>
+    </block>
+  </flex>
 </layout>
 ```
 
