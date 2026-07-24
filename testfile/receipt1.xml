@@ -1,0 +1,171 @@
+<layout id="receipt"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="layout.xsd"
+    version="0.1.0">
+  <flex direction="row" width="100%" height="100%" padding="32px 24px" gap-column="24">
+    <block flex-grow="1.0" id="receipt-shell">
+      <flex direction="column" gap-row="8">
+
+        <!-- top brand stack -->
+        <flex direction="column" align-items="center" gap-row="4" id="header">
+          <block width="72px" height="44px" id="logo">
+            <draw component="image" variant="brand-mark" size="md" align="center" fit="contain"/>
+          </block>
+
+          <block width="100%" height="28px" id="store-name">
+            <draw component="text" variant="title" size="lg" align="center"/>
+          </block>
+
+          <block width="100%" height="18px" id="store-subtitle">
+            <draw component="text" variant="subtitle" size="sm" align="center"/>
+          </block>
+
+          <block width="100%" height="62px" id="order-number">
+            <draw component="text" variant="display" size="xl" align="center"/>
+          </block>
+
+          <block width="96px" height="96px" id="qr">
+            <draw component="image" variant="qr" size="lg" align="center" fit="contain"/>
+          </block>
+
+          <block width="100%" height="24px" id="payment-status">
+            <draw component="text" variant="status" size="md" align="center"/>
+          </block>
+        </flex>
+
+        <block width="100%" height="12px" id="rule-1">
+          <draw component="rect" variant="dashed-rule" size="sm" align="center" fit="fill"/>
+        </block>
+
+        <!-- order metadata -->
+        <flex direction="column" gap-row="4" id="meta">
+          <flex direction="row" width="100%" gap-column="8">
+            <block width="96px" height="18px">
+              <draw component="text" variant="meta-label" size="sm" align="center-left"/>
+            </block>
+            <block flex-grow="1" height="18px">
+              <draw component="text" variant="meta-value" size="sm" align="center-right"/>
+            </block>
+          </flex>
+
+          <flex direction="row" width="100%" gap-column="8">
+            <block width="96px" height="18px">
+              <draw component="text" variant="meta-label" size="sm" align="center-left"/>
+            </block>
+            <block flex-grow="1" height="18px">
+              <draw component="text" variant="meta-value" size="sm" align="center-right"/>
+            </block>
+          </flex>
+
+          <flex direction="row" width="100%" gap-column="8">
+            <block width="96px" height="18px">
+              <draw component="text" variant="meta-label" size="sm" align="center-left"/>
+            </block>
+            <block flex-grow="1" height="18px">
+              <draw component="text" variant="meta-value" size="sm" align="center-right"/>
+            </block>
+          </flex>
+
+          <flex direction="row" width="100%" gap-column="8">
+            <block width="96px" height="18px">
+              <draw component="text" variant="meta-label" size="sm" align="center-left"/>
+            </block>
+            <block flex-grow="1" height="18px">
+              <draw component="text" variant="meta-value" size="sm" align="center-right"/>
+            </block>
+          </flex>
+
+          <flex direction="row" width="100%" gap-column="8">
+            <block width="96px" height="18px">
+              <draw component="text" variant="meta-label" size="sm" align="center-left"/>
+            </block>
+            <block flex-grow="1" height="18px">
+              <draw component="text" variant="meta-value" size="sm" align="center-right"/>
+            </block>
+          </flex>
+        </flex>
+
+        <block width="100%" height="12px" id="rule-2">
+          <draw component="rect" variant="dashed-rule" size="sm" align="center" fit="fill"/>
+        </block>
+
+        <!-- item lines -->
+        <flex direction="column" gap-row="4" id="items">
+          <flex direction="row" width="100%" gap-column="8">
+            <block width="20px" height="18px">
+              <draw component="text" variant="item-qty" size="sm" align="center-left"/>
+            </block>
+            <block flex-grow="1" height="18px">
+              <draw component="text" variant="item-name" size="sm" align="center-left"/>
+            </block>
+            <block width="120px" height="18px">
+              <draw component="text" variant="item-price" size="sm" align="center-right"/>
+            </block>
+          </flex>
+        </flex>
+
+        <block width="100%" height="12px" id="rule-3">
+          <draw component="rect" variant="dashed-rule" size="sm" align="center" fit="fill"/>
+        </block>
+
+        <!-- totals -->
+        <flex direction="column" gap-row="4" id="totals">
+          <flex direction="row" width="100%" gap-column="8">
+            <block flex-grow="1" height="18px">
+              <draw component="text" variant="total-label" size="sm" align="center-left"/>
+            </block>
+            <block width="120px" height="18px">
+              <draw component="text" variant="total-value" size="sm" align="center-right"/>
+            </block>
+          </flex>
+
+          <flex direction="row" width="100%" gap-column="8">
+            <block flex-grow="1" height="18px">
+              <draw component="text" variant="total-label" size="sm" align="center-left"/>
+            </block>
+            <block width="120px" height="18px">
+              <draw component="text" variant="total-value" size="sm" align="center-right"/>
+            </block>
+          </flex>
+
+          <flex direction="row" width="100%" gap-column="8">
+            <block flex-grow="1" height="24px">
+              <draw component="text" variant="total-label-strong" size="md" align="center-left"/>
+            </block>
+            <block width="120px" height="24px">
+              <draw component="text" variant="total-value-strong" size="md" align="center-right"/>
+            </block>
+          </flex>
+        </flex>
+
+        <block width="100%" height="12px" id="rule-4">
+          <draw component="rect" variant="dashed-rule" size="sm" align="center" fit="fill"/>
+        </block>
+
+        <!-- footer -->
+        <flex direction="column" align-items="center" gap-row="4" id="footer">
+          <block width="100%" height="20px">
+            <draw component="text" variant="footer-title" size="md" align="center"/>
+          </block>
+
+          <block width="100%" height="18px">
+            <draw component="text" variant="footer-line" size="sm" align="center"/>
+          </block>
+
+          <block width="100%" height="18px">
+            <draw component="text" variant="footer-line" size="sm" align="center"/>
+          </block>
+
+          <block width="100%" height="18px">
+            <draw component="text" variant="footer-line" size="sm" align="center"/>
+          </block>
+
+          <block width="100%" height="18px">
+            <draw component="text" variant="footer-line" size="sm" align="center"/>
+          </block>
+        </flex>
+
+      </flex>
+    </block>
+  </flex>
+</layout>

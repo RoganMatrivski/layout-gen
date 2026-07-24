@@ -3,6 +3,7 @@ use crate::commons::{
     parse_length_percentage_auto,
 };
 use taffy::prelude::*;
+
 #[derive(serde::Serialize, Debug, Clone, leaf_derive::FromXmlAttrs)]
 pub struct BlockProperties {
     pub id: Option<String>,
@@ -17,6 +18,9 @@ pub struct BlockProperties {
 
     pub flex_grow: f32,
     pub flex_shrink: f32,
+
+    pub position: Position, // "relative" (default) | "absolute"
+    pub inset: EdgeInsets,  // reuse your existing EdgeInsets — top/right/bottom/left
 }
 
 impl Default for BlockProperties {
@@ -43,6 +47,9 @@ impl Default for BlockProperties {
             },
             flex_grow: 0.,
             flex_shrink: 1.,
+
+            position: Position::default(),
+            inset: EdgeInsets::default(),
         }
     }
 }
@@ -79,8 +86,16 @@ impl LeafProperties for BlockProperties {
                 bottom: parse_length_percentage_auto(&self.margin.bottom),
                 left: parse_length_percentage_auto(&self.margin.left),
             },
+
             flex_grow: self.flex_grow,
             flex_shrink: self.flex_shrink,
+
+            inset: Rect {
+                top: parse_length_percentage_auto(&self.inset.top),
+                right: parse_length_percentage_auto(&self.inset.right),
+                bottom: parse_length_percentage_auto(&self.inset.bottom),
+                left: parse_length_percentage_auto(&self.inset.left),
+            },
             ..Default::default()
         }
     }
