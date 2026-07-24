@@ -308,36 +308,40 @@ impl eframe::App for PreviewerApp {
 
                     if let Some(id) = self.selected {
                         if let Some(r) = rects.iter().find(|r| r.node_id == id) {
-                            egui::ScrollArea::vertical()
-                                .max_height(400.0)
-                                .auto_shrink([false, false])
-                                .show(ui, |ui| {
-                                    ui.label(format!("NodeId: {:?}", r.node_id));
-                                    ui.label(format!("pos: {:.0},{:.0}", r.x, r.y));
-                                    ui.label(format!("size: {:.0}x{:.0}", r.width, r.height));
-                                    ui.label(format!("depth: {}", r.depth));
-                                    if let Some(draw) = &r.draw {
-                                        ui.label(format!("{draw:#?}"));
-                                    }
-                                    ui.label(format!("style prop\n{}", r.style_str));
+                            ui.allocate_ui(ui.available_size(), |ui| {
+                                ui.vertical(|ui| {
+                                    // Make scroll area take available height minus footer height
+                                    let footer_height = 40.0; // Estimate
+                                    egui::ScrollArea::vertical()
+                                        .max_height(ui.available_height() - footer_height)
+                                        .auto_shrink([false, false])
+                                        .show(ui, |ui| {
+                                            ui.label(format!("NodeId: {:?}", r.node_id));
+                                            ui.label(format!("pos: {:.0},{:.0}", r.x, r.y));
+                                            ui.label(format!("size: {:.0}x{:.0}", r.width, r.height));
+                                            ui.label(format!("depth: {}", r.depth));
+                                            if let Some(draw) = &r.draw {
+                                                ui.label(format!("{draw:#?}"));
+                                            }
+                                            ui.label(format!("style prop\n{}", r.style_str));
+                                        });
+
+                                    ui.separator();
+                                    ui.add_space(4.0);
+                                    ui.horizontal(|ui| {
+                                        if ui.button("Close").clicked() {
+                                            self.selected = None;
+                                        }
+
+                                        if ui.button("Copy Info").clicked() {
+                                            let info = format!(
+                                                "NodeId: {:?}\npos: {:.0},{:.0}\nsize: {:.0}x{:.0}\ndepth: {}\nstyle: {}",
+                                                r.node_id, r.x, r.y, r.width, r.height, r.depth, r.style_str
+                                            );
+                                            ctx.copy_text(info);
+                                        }
+                                    });
                                 });
-
-                            ui.add_space(8.0);
-                            ui.separator();
-                            ui.add_space(4.0);
-
-                            ui.horizontal(|ui| {
-                                if ui.button("Close").clicked() {
-                                    self.selected = None;
-                                }
-
-                                if ui.button("Copy Info").clicked() {
-                                    let info = format!(
-                                        "NodeId: {:?}\npos: {:.0},{:.0}\nsize: {:.0}x{:.0}\ndepth: {}\nstyle: {}",
-                                        r.node_id, r.x, r.y, r.width, r.height, r.depth, r.style_str
-                                    );
-                                    ctx.copy_text(info);
-                                }
                             });
                         }
                     }
