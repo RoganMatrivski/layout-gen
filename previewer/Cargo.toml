@@ -3,9 +3,6 @@ name = "layout-gen-previewer"
 version = "0.1.0"
 authors = ["Robin Mauritz <robin@mdev.co.id>"]
 edition = "2024"
-description = "Procedural macro derives for layout-gen"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/RoganMatrivski/layout-gen"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [target.'cfg(target_env = "musl")'.dependencies]
