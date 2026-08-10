@@ -18,6 +18,7 @@ taffy= { workspace = true, features = ["parse", "serde"] }
 [dependencies.leaf-derive]
 path = "./derive"
 package = "layout-gen-derive"
+version = "0.1.0"
 
 [workspace]
 members = [
