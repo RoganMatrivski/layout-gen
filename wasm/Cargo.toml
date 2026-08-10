@@ -6,6 +6,7 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 description = "WebAssembly bindings for layout-gen"
+publish = false
 
 [lib]
 crate-type = ["cdylib", "rlib"]
