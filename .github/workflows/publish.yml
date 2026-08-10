@@ -1,0 +1,80 @@
+name: Publish to Crates.io & NPM
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # Required for Trusted Publishing via OIDC (both npm and crates.io)
+
+jobs:
+  publish-crates:
+    name: Publish to Crates.io
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Authenticate with crates.io via OIDC
+        uses: rust-lang/crates-io-auth-action@v1
+        id: cargo-auth
+
+      - name: Publish layout-gen-derive
+        run: cargo publish --manifest-path derive/Cargo.toml
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.cargo-auth.outputs.token }}
+
+      - name: Publish layout-gen
+        run: cargo publish --manifest-path Cargo.toml
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.cargo-auth.outputs.token }}
+
+      - name: Publish layout-gen-wasm
+        run: cargo publish --manifest-path wasm/Cargo.toml
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.cargo-auth.outputs.token }}
+
+  publish-npm:
+    name: Publish WASM to NPM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain with WASM target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Build WASM Package
+        run: |
+          cd wasm
+          wasm-pack build --target bundler --scope roganmatrivski
+
+      - name: Publish to NPM via OIDC
+        run: |
+          cd wasm/pkg
+          npm publish --access public
