@@ -2,7 +2,10 @@
 name = "layout-gen-wasm"
 version = "0.1.0"
 authors = ["Robin Mauritz <robin@mdev.co.id>"]
-edition = "2018"
+edition = "2024" # cargo wasm init defaults to 2018, okay?
+repository = "https://github.com/RoganMatrivski/layout-gen"
+description = "WebAssembly bindings for layout-gen"
+license = "MIT OR Apache-2.0"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -21,6 +24,10 @@ layout-gen = { workspace = true }
 # all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
 # code size when deploying.
 console_error_panic_hook = { workspace = true, optional = true }
+eyre.workspace = true
+taffy.workspace = true
+serde_json.workspace = true
+serde = { workspace = true, features = ["derive"] }
 
 [dev-dependencies]
 wasm-bindgen-test = { workspace = true }

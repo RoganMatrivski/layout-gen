@@ -1,78 +1,42 @@
-<div align="center">
+# @robinmauritz/layout-gen-wasm
 
-  <h1><code>wasm-pack-template</code></h1>
+WebAssembly bindings for `layout-gen` - layout calculation and drawable rect generation powered by Taffy and Rust.
 
-  <strong>A template for kick starting a Rust and WebAssembly project using <a href="https://github.com/rustwasm/wasm-pack">wasm-pack</a>.</strong>
+## Installation
 
-  <h3>
-    <a href="https://rustwasm.github.io/docs/wasm-pack/tutorials/npm-browser-packages/index.html">Tutorial</a>
-    <span> | </span>
-    <a href="https://discordapp.com/channels/442252698964721669/443151097398296587">Chat</a>
-  </h3>
-
-  <sub>Built with Rust and WebAssembly by <a href="https://rustwasm.github.io/">The Rust and WebAssembly Working Group</a></sub>
-</div>
-
-## About
-
-[Read this template tutorial][template-docs].
-
-This template is designed for compiling Rust libraries into WebAssembly and
-publishing the resulting package to NPM.
-
-Be sure to check out [other `wasm-pack` tutorials online][tutorials] for other
-templates and usages of `wasm-pack`.
-
-[tutorials]: https://rustwasm.github.io/docs/wasm-pack/tutorials/index.html
-[template-docs]: https://rustwasm.github.io/docs/wasm-pack/tutorials/npm-browser-packages/index.html
+```bash
+npm install @robinmauritz/layout-gen-wasm
+```
 
 ## Usage
 
-### Use `wasm-pack new` to Clone this Template
+```javascript
+import { get_drawable_rects } from '@robinmauritz/layout-gen-wasm';
 
-```
-wasm-pack new my-project
-cd my-project
-```
+const xmlLayout = '<layout><flex grow="1"><draw type="line"/></flex></layout>';
+const width = 100;
+const height = 100;
 
-### Build with `wasm-pack build`
-
-```
-wasm-pack build
-```
-
-### Test in Headless Browsers with `wasm-pack test`
-
-```
-wasm-pack test --headless --firefox
+try {
+  const rectsJson = get_drawable_rects(xmlLayout, width, height);
+  const rects = JSON.parse(rectsJson);
+  console.log('Drawable rects:', rects);
+} catch (error) {
+  console.error('Failed to compute layout:', error);
+}
 ```
 
-### Publish to NPM with `wasm-pack publish`
+## API
 
-```
-wasm-pack publish
-```
+### `get_drawable_rects(xml: string, width: number, height: number): string`
 
-## Batteries Included
+Parses an XML layout description, computes layout geometry using Taffy, and returns a JSON string containing the computed drawable rects.
 
-* [`wasm-bindgen`](https://github.com/rustwasm/wasm-bindgen) for communicating
-  between WebAssembly and JavaScript.
-* [`console_error_panic_hook`](https://github.com/rustwasm/console_error_panic_hook)
-  for logging panic messages to the developer console.
-* `LICENSE-APACHE` and `LICENSE-MIT`: most Rust projects are licensed this way, so these are included for you.
+- **`xml`**: The layout specification XML string.
+- **`width`**: Available width constraint (px).
+- **`height`**: Available height constraint (px).
+- **Returns**: Pretty-printed JSON string representing computed drawable elements.
 
 ## License
 
-Licensed under either of
-
-* Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-* MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-
-at your option.
-
-### Contribution
-
-Unless you explicitly state otherwise, any contribution intentionally
-submitted for inclusion in the work by you, as defined in the Apache-2.0
-license, shall be dual licensed as above, without any additional terms or
-conditions.
+Dual-licensed under either Apache License 2.0 or MIT License.
