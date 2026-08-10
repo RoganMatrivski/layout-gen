@@ -1,10 +1,10 @@
 [package]
 name = "layout-gen-derive"
 version = "0.1.0"
-edition = "2024"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 description = "Procedural macro derives for layout-gen"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/RoganMatrivski/layout-gen"
 
 [lib]
 proc-macro = true
