@@ -28,18 +28,8 @@ jobs:
         uses: rust-lang/crates-io-auth-action@v1
         id: cargo-auth
 
-      - name: Publish layout-gen-derive
-        run: cargo publish --manifest-path derive/Cargo.toml
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ steps.cargo-auth.outputs.token }}
-
       - name: Publish layout-gen
-        run: cargo publish --manifest-path Cargo.toml
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ steps.cargo-auth.outputs.token }}
-
-      - name: Publish layout-gen-wasm
-        run: cargo publish --manifest-path wasm/Cargo.toml
+        run: cargo publish --manifest-path Cargo.toml 
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.cargo-auth.outputs.token }}
 
