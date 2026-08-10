@@ -53,13 +53,10 @@ jobs:
         with:
           tool: wasm-pack
 
-      - name: Setup Node.js
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
-      - name: Upgrade npm CLI
-        run: npm install -g npm@latest
+          node-version: '22'
 
       - name: Build WASM Package
         run: |
