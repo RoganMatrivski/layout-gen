@@ -2040,7 +2040,7 @@ dependencies = [
 
 [[package]]
 name = "layout-gen"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "eyre",
  "layout-gen-derive",
@@ -2087,7 +2087,7 @@ dependencies = [
 
 [[package]]
 name = "layout-gen-wasm"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "console_error_panic_hook",
  "eyre",
