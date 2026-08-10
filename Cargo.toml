@@ -1,10 +1,10 @@
 [package]
 name = "layout-gen"
-version = "0.1.1"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 description = "Fast layout calculation and drawable rect generator"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/RoganMatrivski/layout-gen"
 
 [dependencies]
 eyre = { workspace = true }
@@ -18,7 +18,7 @@ taffy= { workspace = true, features = ["parse", "serde"] }
 [dependencies.leaf-derive]
 path = "./derive"
 package = "layout-gen-derive"
-version = "0.1.0"
+version = "0.1"
 
 [workspace]
 members = [
@@ -26,6 +26,13 @@ members = [
     "wasm",
     "previewer",
 ]
+
+[workspace.package]
+version = "0.1.1"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/RoganMatrivski/layout-gen"
+authors = ["Robin Mauritz <robin@mdev.co.id>"]
 
 [workspace.dependencies]
 arboard = "3.6.1"
@@ -54,3 +61,8 @@ tracing-error = "0.2.1"
 tracing-subscriber = "0.3.23"
 wasm-bindgen = "0.2.84"
 wasm-bindgen-test = "0.3.34"
+
+[workspace.metadata.release]
+publish = false
+tag = true
+push = true

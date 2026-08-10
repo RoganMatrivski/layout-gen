@@ -1,11 +1,11 @@
 [package]
 name = "layout-gen-wasm"
-version = "0.1.0"
-authors = ["Robin Mauritz <robin@mdev.co.id>"]
-edition = "2024" # cargo wasm init defaults to 2018, okay?
-repository = "https://github.com/RoganMatrivski/layout-gen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
 description = "WebAssembly bindings for layout-gen"
-license = "MIT OR Apache-2.0"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
