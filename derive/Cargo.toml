@@ -12,3 +12,6 @@ proc-macro = true
 [dependencies]
 syn = { workspace = true, features = ["full"] }
 quote = { workspace = true }
+
+[package.metadata.release]
+publish = true
