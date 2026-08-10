@@ -18,8 +18,7 @@ const width = 100;
 const height = 100;
 
 try {
-  const rectsJson = get_drawable_rects(xmlLayout, width, height);
-  const rects = JSON.parse(rectsJson);
+  const rects = get_drawable_rects(xmlLayout, width, height);
   console.log('Drawable rects:', rects);
 } catch (error) {
   console.error('Failed to compute layout:', error);
@@ -28,14 +27,14 @@ try {
 
 ## API
 
-### `get_drawable_rects(xml: string, width: number, height: number): string`
+### `get_drawable_rects(xml: string, width: number, height: number): RenderRect[]`
 
-Parses an XML layout description, computes layout geometry using Taffy, and returns a JSON string containing the computed drawable rects.
+Parses an XML layout description, computes layout geometry using Taffy, and returns an array of computed `RenderRect` objects.
 
 - **`xml`**: The layout specification XML string.
 - **`width`**: Available width constraint (px).
 - **`height`**: Available height constraint (px).
-- **Returns**: Pretty-printed JSON string representing computed drawable elements.
+- **Returns**: `RenderRect[]` representing computed drawable elements.
 
 ## License
 
