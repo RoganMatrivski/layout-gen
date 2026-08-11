@@ -65,8 +65,38 @@ jobs:
       - name: Build WASM Package & Format package.json
         run: |
           cd wasm
-          wasm-pack build --target bundler --scope robinmauritz
+          wasm-pack build --target nodejs --out-dir pkg/node --scope robinmauritz
+          wasm-pack build --target bundler --out-dir pkg/web --scope robinmauritz
+
           cd pkg
+          cp web/package.json package.json
+          cp web/README.md . 2>/dev/null || true
+          cp web/LICENSE* . 2>/dev/null || true
+
+          node -e '
+            const fs = require("fs");
+            const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            delete pkg.type;
+            pkg.main = "./node/layout_gen_wasm.js";
+            pkg.module = "./web/layout_gen_wasm.js";
+            pkg.types = "./web/layout_gen_wasm.d.ts";
+            pkg.exports = {
+              ".": {
+                "node": {
+                  "types": "./node/layout_gen_wasm.d.ts",
+                  "default": "./node/layout_gen_wasm.js"
+                },
+                "import": {
+                  "types": "./web/layout_gen_wasm.d.ts",
+                  "default": "./web/layout_gen_wasm.js"
+                },
+                "default": "./web/layout_gen_wasm.js"
+              }
+            };
+            pkg.files = ["node", "web", "LICENSE-APACHE", "LICENSE-MIT", "README.md"];
+            fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2));
+          '
+
           npm pkg set publishConfig.access="public" publishConfig.registry="https://registry.npmjs.org/" repository.url="git+https://github.com/RoganMatrivski/layout-gen.git"
 
       - name: Publish to NPM
